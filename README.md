@@ -1,8 +1,8 @@
 erDiagram
-    Users ||--o{ DailyLogs : "has many"
-    DailyLogs ||--o{ TemperatureLogs : "has many"
-    DailyLogs ||--o{ JointConditions : "has many"
-    DailyLogs ||--o{ MedicationLogs : "has many"
+    Users ||--o{ DailyLogs : "has many" }
+    DailyLogs ||--o{ TemperatureLogs : "has many" }
+    DailyLogs ||--o{ JointConditions : "has many" }
+    DailyLogs ||--o{ MedicationLogs : "has many" }
 
     Users {
         bigint id PK
