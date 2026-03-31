@@ -1,0 +1,17 @@
+ja:
+  activerecord:
+    attributes:
+      user:
+        last_name: "姓"
+        first_name: "名"
+        last_name_kana: "姓（フリガナ）"
+        first_name_kana: "名（フリガナ）"
+        gender: "性別"
+        birthday: "生年月日"
+        phone_number: "携帯番号"
+        diagnosis_name: "診断名"
+        started_at: "治療開始日"
+  errors:
+    messages:
+      blank: "を入力してください"
+      invalid: "は不正な値です"
