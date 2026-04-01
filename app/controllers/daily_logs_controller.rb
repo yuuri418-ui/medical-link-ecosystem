@@ -6,6 +6,8 @@ class DailyLogsController < ApplicationController
   end
 
   def index
+    # 新しい日付順に取得
+    @daily_logs = current_user.daily_logs.order(date: :desc)
   end
 
   def show
