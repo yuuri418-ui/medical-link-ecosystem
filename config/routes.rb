@@ -15,4 +15,6 @@ Rails.application.routes.draw do
   # root "posts#index"
 
   root "home#index"
+
+  resources :daily_logs
 end
