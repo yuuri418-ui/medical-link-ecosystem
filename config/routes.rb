@@ -14,6 +14,10 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
 
+  authenticated :user do
+    root 'daily_logs#index', as: :authenticated_root
+  end
+
   root "home#index"
 
   resources :daily_logs
