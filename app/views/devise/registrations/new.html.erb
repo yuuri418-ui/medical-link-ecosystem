@@ -1,74 +1,90 @@
-<h2>Sign up</h2>
+<div class="flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg border border-blue-50">
+    <h2 class="text-center text-2xl font-extrabold text-gray-900 tracking-tight">新規アカウント登録</h2>
 
-<%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "mt-8 space-y-5" }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
 
-  <div class="field">
-    <%= f.label :last_name, "姓" %><br />
-    <%= f.text_field :last_name, autofocus: true %>
-  </div>
+      <%# 氏名（漢字） %>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <%= f.label :last_name, "姓", class: "text-xs font-bold text-gray-500 uppercase" %>
+          <%= f.text_field :last_name, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder: "山田" %>
+        </div>
+        <div>
+          <%= f.label :first_name, "名", class: "text-xs font-bold text-gray-500 uppercase" %>
+          <%= f.text_field :first_name, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder: "太郎" %>
+        </div>
+      </div>
 
-  <div class="field">
-    <%= f.label :first_name, "名" %><br />
-    <%= f.text_field :first_name %>
-  </div>
+      <%# 氏名（フリガナ） %>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <%= f.label :last_name_kana, "姓（フリガナ）", class: "text-xs font-bold text-gray-500 uppercase" %>
+          <%= f.text_field :last_name_kana, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder: "ヤマダ" %>
+        </div>
+        <div>
+          <%= f.label :first_name_kana, "名（フリガナ）", class: "text-xs font-bold text-gray-500 uppercase" %>
+          <%= f.text_field :first_name_kana, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder: "タロウ" %>
+        </div>
+      </div>
 
-  <div class="field">
-    <%= f.label :last_name_kana, "姓（フリガナ）" %><br />
-    <%= f.text_field :last_name_kana %>
-  </div>
+      <div class="grid grid-cols-2 gap-4">
+        <%# 性別 %>
+        <div>
+          <%= f.label :gender, "性別", class: "text-xs font-bold text-gray-500 uppercase" %>
+          <%= f.select :gender, [["男性", "male"], ["女性", "female"], ["その他", "other"]], { include_blank: "選択してください" }, 
+              class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white" %>
+        </div>
+        
+      </div>
 
-  <div class="field">
-    <%= f.label :first_name_kana, "名（フリガナ）" %><br />
-    <%= f.text_field :first_name_kana %>
-  </div>
+      <%# 生年月日 %>
+      <div>
+        <%= f.label :birthday, "生年月日", class: "text-xs font-bold text-gray-500 uppercase" %>
+        <%= f.date_field :birthday, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+      </div>
 
-  <div class="field">
-    <%= f.label :gender, "性別" %><br />
-    <%= f.select :gender, [["未選択", "unselected"], ["男性", "male"], ["女性", "female"], ["その他", "other"]] %>
-  </div>
+      <div class="p-4 bg-blue-50 rounded-lg space-y-4">
+        <%# 診断名 %>
+        <div>
+          <%= f.label :diagnosis_name, "診断名（任意）", class: "text-xs font-bold text-blue-700 uppercase" %>
+          <%= f.text_field :diagnosis_name, class: "mt-1 block w-full px-3 py-2 border border-blue-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder: "例：アトピー性皮膚炎" %>
+        </div>
+        <%# 治療開始日 %>
+        <div>
+          <%= f.label :started_at, "治療開始日（または発症時期）", class: "text-xs font-bold text-blue-700 uppercase" %>
+          <%= f.date_field :started_at, class: "mt-1 block w-full px-3 py-2 border border-blue-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+        </div>
+      </div>
 
-  <div class="field">
-    <%= f.label :birthday, "生年月日" %><br />
-    <%= f.date_field :birthday %>
-  </div>
+      <div class="pt-4 border-t border-gray-100">
+        <%# 携帯番号 %>
+        <div>
+          <%= f.label :phone_number, "携帯番号", class: "text-xs font-bold text-gray-500 uppercase" %>
+          <%= f.telephone_field :phone_number, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder: "09012345678" %>
+        </div>
+        <%# メールアドレス %>
+        <div>
+          <%= f.label :email, "メールアドレス", class: "text-xs font-bold text-gray-500 uppercase" %>
+          <%= f.email_field :email, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder: "mail@example.com" %>
+        </div>
 
-  <div class="field">
-    <%= f.label :diagnosis_name, "診断名" %><br />
-    <%= f.text_field :diagnosis_name, placeholder: "例：全身性エリテマトーデス（SLE）" %>
-  </div>
+        <div class="mt-4">
+          <%= f.label :password, "パスワード", class: "text-xs font-bold text-gray-500 uppercase" %>
+          <%= f.password_field :password, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+        </div>
+        <div class="mt-4">
+          <%= f.label :password_confirmation, "パスワード（確認）", class: "text-xs font-bold text-gray-500 uppercase" %>
+          <%= f.password_field :password_confirmation, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+        </div>
+      </div>
 
-  <div class="field">
-    <%= f.label :started_at, "治療開始日（または発症時期）" %><br />
-    <%= f.date_field :started_at %>
-  </div>
-
-  <div class="field">
-    <%= f.label :phone_number, "携帯番号" %><br />
-    <%= f.text_field :phone_number %>
-  </div>
-
-  <div class="field">
-    <p><%= f.label :email %></p>
-    <p><%= f.email_field :email, autofocus: true, autocomplete: "email" %></p>
-  </div>
-
-  <div class="field">
-    <p><%= f.label :password %></p>
-    <% if @minimum_password_length %>
-      <p><em>(<%= @minimum_password_length %> characters minimum)</em></p>
+      <%= f.submit "無料でアカウント登録", class: "w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-lg text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 transform hover:-translate-y-0.5" %>
     <% end %>
-    <p><%= f.password_field :password, autocomplete: "new-password" %></p>
-  </div>
 
-  <div class="field">
-    <p><%= f.label :password_confirmation %></p>
-    <p><%= f.password_field :password_confirmation, autocomplete: "new-password" %></p>
+    <div class="text-center mt-6">
+      <%= render "devise/shared/links" %>
+    </div>
   </div>
-
-  <div class="actions">
-    <%= f.submit "Sign up" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+</div>
