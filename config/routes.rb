@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  get 'daily_logs/new'
+  get 'daily_logs/index'
+  get 'daily_logs/show'
+  get 'daily_logs/edit'
   get 'home/index'
   devise_for :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
@@ -10,5 +14,11 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
 
+  authenticated :user do
+    root 'daily_logs#index', as: :authenticated_root
+  end
+
   root "home#index"
+
+  resources :daily_logs
 end
