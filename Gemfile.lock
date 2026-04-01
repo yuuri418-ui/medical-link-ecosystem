@@ -108,6 +108,10 @@ GEM
       activesupport (>= 6.1)
     i18n (1.14.8)
       concurrent-ruby (~> 1.0)
+    importmap-rails (2.2.3)
+      actionpack (>= 6.0.0)
+      activesupport (>= 6.0.0)
+      railties (>= 6.0.0)
     io-console (0.8.2)
     irb (1.17.0)
       pp (>= 0.6.0)
@@ -208,6 +212,14 @@ GEM
       actionpack (>= 7.0)
       railties (>= 7.0)
     securerandom (0.4.1)
+    sprockets (4.2.2)
+      concurrent-ruby (~> 1.0)
+      logger
+      rack (>= 2.2.4, < 4)
+    sprockets-rails (3.5.2)
+      actionpack (>= 6.1)
+      activesupport (>= 6.1)
+      sprockets (>= 3.0.0)
     stringio (3.2.0)
     tailwindcss-rails (4.4.0)
       railties (>= 7.0.0)
@@ -235,9 +247,11 @@ DEPENDENCIES
   bootsnap
   debug
   devise
+  importmap-rails (~> 2.2)
   pg (~> 1.1)
   puma (>= 5.0)
   rails (~> 7.1.6)
+  sprockets-rails (~> 3.5)
   tailwindcss-rails (~> 4.4)
   tzinfo-data
 

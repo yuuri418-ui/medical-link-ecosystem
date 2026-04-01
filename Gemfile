@@ -48,3 +48,7 @@ end
 gem 'devise'
 
 gem "tailwindcss-rails", "~> 4.4"
+
+gem "sprockets-rails", "~> 3.5"
+
+gem "importmap-rails", "~> 2.2"

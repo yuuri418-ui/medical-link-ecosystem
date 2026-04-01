@@ -34,3 +34,5 @@
 
 # Docker PostgreSQL data
 db/data/
+/app/assets/builds/*
+!/app/assets/builds/.keep
