@@ -5,7 +5,6 @@ class VisitLog < ApplicationRecord
   has_many :blood_test_items, dependent: :destroy
 
   # ネストしたデータの保存を許可
-  accepts_nested_attributes_for :blood_test_results, allow_destroy: true, reject_if: :all_blank
   accepts_nested_attributes_for :prescribed_medicines, allow_destroy: true, reject_if: :all_blank
   accepts_nested_attributes_for :blood_test_items, allow_destroy: true, reject_if: :all_blank
 
