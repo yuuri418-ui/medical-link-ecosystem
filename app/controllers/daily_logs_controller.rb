@@ -3,9 +3,18 @@ class DailyLogsController < ApplicationController
 
   def new
     @daily_log = current_user.daily_logs.build
-    # 体温の入力欄を1つ用意しておく（複数入力も可能）
     @daily_log.temperature_logs.build 
-    @daily_log.medication_logs.build
+
+    current_user.latest_prescribed_medicines.each do |medicine|
+      @daily_log.medication_logs.build(
+        medicine_name: medicine.name,
+        dosage: medicine.dosage,
+        is_taken: false # 初期値は未服用
+      )
+    end
+
+    # もし処方薬が一つも登録されていない場合のために、空の入力欄も一つ作っておく
+    @daily_log.medication_logs.build if @daily_log.medication_logs.empty?
   end
 
   def index
