@@ -11,5 +11,6 @@ class VisitLog < ApplicationRecord
   validates :visited_on, presence: true
   validates :hospital_name, presence: true
   validates :department, presence: true
+  validates :doctor_name, presence: true
 end
 
