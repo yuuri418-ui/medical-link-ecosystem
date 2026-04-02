@@ -56,6 +56,7 @@ class VisitLogsController < ApplicationController
       :visited_on, :hospital_name, :department, :doctor_name, :memo,
       blood_test_results_attributes: [:id, :item_name, :value, :unit, :_destroy],
       prescribed_medicines_attributes: [:id, :name, :dosage, :_destroy]
+      blood_test_items_attributes: [:id, :name, :value, :unit, :category, :reference_range, :_destroy]
     )
   end
 end
