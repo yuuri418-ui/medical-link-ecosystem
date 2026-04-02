@@ -1,80 +1,139 @@
-<div class="max-w-5xl mx-auto py-8 px-4">
+<div class="max-w-6xl mx-auto py-8 px-4">
   <div class="flex justify-between items-center mb-8">
     <h1 class="text-2xl font-bold text-gray-800 flex items-center">
-      🏥 受診記録一覧
+      🏥 受診記録・検査結果
     </h1>
     <%= link_to '＋ 新規登録', new_visit_log_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow-md transition" %>
   </div>
 
+  <% # --- 血液検査結果の横並び比較セクション --- %>
+  <% if @visit_logs.any? && @item_names.present? %>
+    <div class="mb-12">
+      <h2 class="text-lg font-bold text-gray-700 mb-4 flex items-center">
+        <span class="mr-2">📊</span> 検査数値の推移（比較一覧）
+      </h2>
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-100 text-sm">
+            <thead>
+              <tr class="bg-gray-50/80">
+                <th class="p-4 text-left font-bold text-gray-500 sticky left-0 bg-gray-50/80 backdrop-blur z-10 w-40">検査項目</th>
+                <% @visit_logs.each do |log| %>
+                  <th class="p-4 text-center font-bold text-blue-600 min-w-[120px]">
+                    <div class="text-xs text-gray-400 font-normal"><%= log.visited_on.strftime("%Y年") %></div>
+                    <%= log.visited_on.strftime("%m/%d") %>
+                  </th>
+                <% end %>
+                <th class="p-4 text-left font-bold text-gray-400 min-w-[100px]">基準値</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              <% @item_names.each do |name| %>
+                <tr class="hover:bg-blue-50/30 transition">
+                  <td class="p-4 font-bold text-gray-700 sticky left-0 bg-white group-hover:bg-blue-50/30 z-10 border-r border-gray-50 shadow-[2px_0_5px_rgba(0,0,0,0.02)]">
+                    <%= name %>
+                  </td>
+                  <% @visit_logs.each do |log| %>
+                    <td class="p-4 text-center">
+                      <% item = log.blood_test_items.find { |i| i.name == name } %>
+                      <% if item %>
+                        <div class="text-gray-900 font-medium">
+                          <%= item.value %>
+                          <span class="text-[10px] text-gray-400 ml-0.5"><%= item.unit %></span>
+                        </div>
+                      <% else %>
+                        <span class="text-gray-300">-</span>
+                      <% end %>
+                    </td>
+                  <% end %>
+                  <td class="p-4 text-xs text-gray-400 italic bg-gray-50/30">
+                    <% # 最初のログから基準値を取得（理想は最新から） %>
+                    <%= @visit_logs.flat_map(&:blood_test_items).find { |i| i.name == name }&.reference_range %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <% # --- 既存：受診記録カード一覧 --- %>
+  <h2 class="text-lg font-bold text-gray-700 mb-4 flex items-center">
+    <span class="mr-2">📝</span> 受診メモ履歴
+  </h2>
+
   <% if @visit_logs.any? %>
     <div class="space-y-6">
-      <% @visit_logs.each do |log| %>
-      <%= link_to log, class: "block group" do %>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <% # ヘッダー部分 %>
-          <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-            <div>
-              <span class="text-lg font-bold text-gray-800 group-hover:text-blue-600 group-hover:underline">
-                <%= log.visited_on.strftime("%Y年%m月%d日") %>
-              </span>
-              <span class="ml-3 text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">
-                <%= log.department %>
-              </span>
+      <% @visit_logs.reverse_each do |log| %>
+        <%= link_to log, class: "block group" do %>
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
+            <% # ヘッダー部分 %>
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+              <div>
+                <span class="text-lg font-bold text-gray-800 group-hover:text-blue-600 group-hover:underline">
+                  <%= log.visited_on.strftime("%Y年%m月%d日") %>
+                </span>
+                <span class="ml-3 text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                  <%= log.department %>
+                </span>
+              </div>
+              <div class="text-sm text-gray-500">
+                担当: <%= log.doctor_name.present? ? log.doctor_name : "未入力" %>
+              </div>
             </div>
-            <div class="text-sm text-gray-500">
-              担当: <%= log.doctor_name.present? ? log.doctor_name : "未入力" %>
+
+            <div class="p-6">
+              <h3 class="text-md font-bold text-gray-700 mb-2"><%= log.hospital_name %></h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <% # 血液検査結果の簡易表示 %>
+                <div class="bg-blue-50/50 p-4 rounded-xl">
+                  <p class="text-xs font-bold text-blue-800 mb-2 flex items-center">
+                    <span class="mr-1">🩸</span> 血液検査（<%= log.blood_test_items.count %>項目）
+                  </p>
+                  <% if log.blood_test_items.any? %>
+                    <div class="flex flex-wrap gap-2">
+                      <% log.blood_test_items.each do |item| %>
+                        <span class="text-xs bg-white border border-blue-100 px-2 py-1 rounded shadow-sm">
+                          <%= item.name %>: <span class="font-bold text-blue-600"><%= item.value %></span>
+                        </span>
+                      <% end %>
+                    </div>
+                  <% else %>
+                    <p class="text-xs text-gray-400 italic">記録なし</p>
+                  <% end %>
+                </div>
+
+                <% # 処方薬の簡易表示（既存の association 名に合わせて調整してください） %>
+                <div class="bg-green-50/50 p-4 rounded-xl">
+                  <p class="text-xs font-bold text-green-800 mb-2 flex items-center">
+                    <span class="mr-1">💊</span> 処方された薬
+                  </p>
+                  <% # ここは既存の prescribed_medicines を利用 %>
+                  <% if log.respond_to?(:prescribed_medicines) && log.prescribed_medicines.any? %>
+                    <div class="flex flex-wrap gap-2">
+                      <% log.prescribed_medicines.each do |med| %>
+                        <span class="text-xs bg-white border border-green-100 px-2 py-1 rounded shadow-sm">
+                          <%= med.name %> <span class="text-gray-500 font-normal ml-1"><%= med.dosage %></span>
+                        </span>
+                      <% end %>
+                    </div>
+                  <% else %>
+                    <p class="text-xs text-gray-400 italic">記録なし</p>
+                  <% end %>
+                </div>
+              </div>
+
+              <% if log.memo.present? %>
+                <div class="mt-4 p-3 bg-gray-50 rounded-lg border-l-4 border-gray-200">
+                  <p class="text-xs text-gray-600 leading-relaxed italic"><%= log.memo %></p>
+                </div>
+              <% end %>
             </div>
           </div>
-
-          <div class="p-6">
-            <h3 class="text-md font-bold text-gray-700 mb-2"><%= log.hospital_name %></h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <% # 血液検査結果の簡易表示 %>
-              <div class="bg-blue-50/50 p-4 rounded-xl">
-                <p class="text-xs font-bold text-blue-800 mb-2 flex items-center">
-                  <span class="mr-1">🩸</span> 血液検査結果
-                </p>
-                <% if log.blood_test_results.any? %>
-                  <div class="flex flex-wrap gap-2">
-                    <% log.blood_test_results.each do |result| %>
-                      <span class="text-xs bg-white border border-blue-100 px-2 py-1 rounded shadow-sm">
-                        <%= result.item_name %>: <span class="font-bold"><%= result.value %></span> <%= result.unit %>
-                      </span>
-                    <% end %>
-                  </div>
-                <% else %>
-                  <p class="text-xs text-gray-400 italic">記録なし</p>
-                <% end %>
-              </div>
-
-              <% # 処方薬の簡易表示 %>
-              <div class="bg-green-50/50 p-4 rounded-xl">
-                <p class="text-xs font-bold text-green-800 mb-2 flex items-center">
-                  <span class="mr-1">💊</span> 処方された薬
-                </p>
-                <% if log.prescribed_medicines.any? %>
-                  <div class="flex flex-wrap gap-2">
-                    <% log.prescribed_medicines.each do |med| %>
-                      <span class="text-xs bg-white border border-green-100 px-2 py-1 rounded shadow-sm">
-                        <%= med.name %> <span class="text-gray-500 font-normal ml-1"><%= med.dosage %></span>
-                      </span>
-                    <% end %>
-                  </div>
-                <% else %>
-                  <p class="text-xs text-gray-400 italic">記録なし</p>
-                <% end %>
-              </div>
-            </div>
-
-            <% if log.memo.present? %>
-              <div class="mt-4 p-3 bg-gray-50 rounded-lg">
-                <p class="text-xs text-gray-600 leading-relaxed"><%= log.memo %></p>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      <% end %>
+        <% end %>
       <% end %>
     </div>
   <% else %>

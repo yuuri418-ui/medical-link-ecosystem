@@ -2,14 +2,23 @@ class VisitLogsController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @visit_logs = current_user.visit_logs.includes(:blood_test_results, :prescribed_medicines).order(visited_on: :desc)
+    # シンプルに「全ての通院記録を日付順（古い順）」で取得
+    # includes を使うことで、N+1問題を回避しつつ関連データを効率よく読み込みます
+    @visit_logs = VisitLog.includes(:blood_test_items).order(visited_on: :asc)
+  
+    # 全ての記録の中から、登録されている「検査項目名」をダブりなく抽出（表の縦軸用）
+    # pluck(:id) を使うことで、メモリ消費を抑えてIDだけを取り出します
+    @item_names = BloodTestItem.where(visit_log_id: @visit_logs.map(&:id))
+                               .pluck(:name)
+                               .uniq
+                               .sort # 項目名を50音順に並べると見やすくなります
   end
 
   def new
     @visit_log = current_user.visit_logs.build
     # 最初から3つずつ入力欄を表示させる
-    3.times { @visit_log.blood_test_results.build }
     3.times { @visit_log.prescribed_medicines.build }
+    3.times { @visit_log.blood_test_items.build }
   end
 
   def create
@@ -28,7 +37,9 @@ class VisitLogsController < ApplicationController
   end
 
   def edit
-    @visit_log = current_user.visit_logs.find(params[:id])
+    @visit_log = VisitLog.find(params[:id])
+    # 既存のデータ＋新しい空の入力欄を2つ追加
+    2.times { @visit_log.blood_test_items.build }
   end
 
   def update
@@ -45,8 +56,8 @@ class VisitLogsController < ApplicationController
   def visit_log_params
     params.require(:visit_log).permit(
       :visited_on, :hospital_name, :department, :doctor_name, :memo,
-      blood_test_results_attributes: [:id, :item_name, :value, :unit, :_destroy],
-      prescribed_medicines_attributes: [:id, :name, :dosage, :_destroy]
+      prescribed_medicines_attributes: [:id, :name, :dosage, :_destroy],
+      blood_test_items_attributes: [:id, :name, :value, :unit, :category, :reference_range, :_destroy]
     )
   end
 end
