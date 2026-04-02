@@ -59,31 +59,43 @@
       </div>
 
       <%# 服薬記録セクション %>
-      <div class="bg-green-50 p-4 rounded-xl border border-green-100 mt-6">
-        <h2 class="text-sm font-bold text-green-800 mb-3 flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-          </svg>
-          服薬の記録
+      <div class="bg-green-50 p-6 rounded-2xl border border-green-100 mt-6">
+        <h2 class="text-sm font-bold text-green-800 mb-4 flex items-center">
+          💊 今日の服薬チェック
         </h2>
+
+        <div class="space-y-3">
+          <%= f.fields_for :medication_logs do |m_form| %>
+            <div class="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-green-50">
+              <div class="flex items-center space-x-3">
+                <%# 服用チェックボックス %>
+                <%= m_form.check_box :is_taken, class: "w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500" %>
+          
+                <div>
+                  <span class="block font-bold text-gray-800">
+                    <%= m_form.object.medicine_name %>
+                    <%= m_form.hidden_field :medicine_name %> <%# 名前を隠しフィールドで保持 %>
+                  </span>
+                  <span class="text-xs text-gray-500">
+                    <%= m_form.object.dosage %>
+                    <%= m_form.hidden_field :dosage %> <%# 用量を隠しフィールドで保持 %>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+              <%# もし手動で追加したい場合（薬名が空）の時だけ入力欄を表示する工夫 %>
+              <% if m_form.object.medicine_name.blank? %>
+                <div class="flex space-x-2">
+                  <%= m_form.text_field :medicine_name, placeholder: "その他の薬名", class: "text-xs rounded-lg border-gray-200" %>
+                  <%= m_form.text_field :dosage, placeholder: "用量", class: "text-xs w-20 rounded-lg border-gray-200" %>
+                </div>
+              <% end %>
+          <% end %>
+        </div>
   
-        <%= f.fields_for :medication_logs do |m_form| %>
-          <div class="grid grid-cols-12 gap-3 items-end">
-            <div class="col-span-6">
-              <%= m_form.label :medicine_name, "薬名", class: "block text-xs text-gray-500 mb-1" %>
-              <%= m_form.text_field :medicine_name, class: "w-full rounded-lg border-gray-300 focus:ring-green-500 shadow-sm", placeholder: "例: プレドニン" %>
-            </div>
-            <div class="col-span-3">
-              <%= m_form.label :dosage, "用量", class: "block text-xs text-gray-500 mb-1" %>
-              <%= m_form.text_field :dosage, class: "w-full rounded-lg border-gray-300 focus:ring-green-500 shadow-sm", placeholder: "5mg" %>
-            </div>
-            <div class="col-span-3 pb-2 flex items-center justify-center">
-              <label class="inline-flex items-center cursor-pointer">
-                <%= m_form.check_box :is_taken, class: "rounded border-gray-300 text-green-600 shadow-sm focus:ring-green-500" %>
-                <span class="ml-2 text-sm font-bold text-gray-700">服用</span>
-              </label>
-            </div>
-          </div>
+        <% if current_user.latest_prescribed_medicines.empty? %>
+          <p class="text-xs text-gray-400 mt-2">※受診記録で処方薬を登録すると、ここに自動で表示されます。</p>
         <% end %>
       </div>
 
