@@ -2,7 +2,7 @@ class VisitLogsController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @visit_logs = current_user.visit_logs.order(visited_on: :desc)
+    @visit_logs = current_user.visit_logs.includes(:blood_test_results, :prescribed_medicines).order(visited_on: :desc)
   end
 
   def new
