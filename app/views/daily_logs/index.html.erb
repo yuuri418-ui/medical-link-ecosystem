@@ -1,14 +1,16 @@
 <div class="max-w-4xl mx-auto py-8 px-4">
   <div class="flex justify-between items-center mb-8">
-    <h1 class="text-2xl font-bold text-gray-800">体調ログ履歴</h1>
-    <%= link_to "新しく記録する", new_daily_log_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow-sm transition" %>
+    <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+      📝 体調ログ履歴
+    </h1>
+    <%= link_to "新しく記録する", new_daily_log_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow-md transition" %>
   </div>
 
   <%# --- グラフセクション --- %>
-  <div class="max-w-5xl mx-auto py-8 px-4">
-    <%# 期間切り替えボタン %>
+  <div class="max-w-5xl mx-auto py-4">
+    <%# 📅 期間切り替えボタン：1ヶ月〜1年に変更 %>
     <div class="flex justify-center space-x-2 mb-8 bg-gray-100 p-1 rounded-xl w-fit mx-auto">
-      <% [["14日", "14days"], ["1ヶ月", "1month"], ["3ヶ月", "3months"]].each do |label, p| %>
+      <% [["1ヶ月", "1month"], ["3ヶ月", "3months"], ["6ヶ月", "6months"], ["1年", "1year"]].each do |label, p| %>
         <%= link_to label, daily_logs_path(period: p), 
           class: "px-6 py-2 rounded-lg text-sm font-bold transition #{@period == p ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}" %>
       <% end %>
@@ -22,7 +24,19 @@
           <%= line_chart [
             { name: "痛み", data: @pain_data, color: "#2563eb" },
             { name: "倦怠感", data: @fatigue_data, color: "#10b981" }
-          ], min: 0, max: 10, points: @period == "14days", curve: true %>
+          ], 
+          xtitle: "記録日",
+          ytitle: "VAS",
+          min: 0, max: 10, 
+          points: ["14days", "1month"].include?(@period), 
+          curve: true,
+          library: {
+            layout: { padding: { bottom: 30, left: 10, right: 10 } },
+            scales: {
+              x: { ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 45 } },
+              y: { ticks: { font: { size: 10 } } }
+            }
+          } %>
         </div>
       </div>
 
@@ -31,57 +45,64 @@
         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Temperature / 体温推移</h3>
         <div class="h-64">
           <%= line_chart @temp_data, 
+              xtitle: "測定日",
               color: "#f97316", 
               min: 35, max: 39, 
-              points: @period == "14days", 
+              points: ["14days", "1month"].include?(@period), 
               curve: true, 
-              suffix: "°C" %>
+              suffix: "°C",
+              library: {
+                layout: { padding: { bottom: 30, left: 10, right: 10 } },
+                scales: {
+                  x: { ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 45 } },
+                  y: { ticks: { font: { size: 10 } } }
+                }
+              } %>
         </div>
       </div>
     </div>
 
-  <div class="space-y-4">
-    <% @daily_logs.each do |log| %>
-      <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition">
-        <div class="flex items-center space-x-4">
-          <%# 体調アイコンの表示 %>
-          <div class="text-3xl">
-            <%= {1=>"😫", 2=>"🙁", 3=>"😐", 4=>"🙂", 5=>"😆"}[log.condition] %>
-          </div>
-          
-          <div>
-            <div class="text-sm text-gray-500 font-medium"><%= log.date.strftime("%Y年%m月%d日") %></div>
-            <div class="flex space-x-3 mt-1 flex-wrap gap-y-2">
-              <span class="text-xs bg-red-50 text-red-600 px-2 py-1 rounded-full font-bold">痛み: <%= log.pain_vas %></span>
-              <span class="text-xs bg-yellow-50 text-yellow-600 px-2 py-1 rounded-full font-bold">倦怠感: <%= log.fatigue_vas %></span>
-              <% if log.stiffness_duration.present? && log.stiffness_duration > 0 %>
-                <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full font-bold">こわばり: <%= log.stiffness_duration %>分</span>
-              <% end %>
-              <%# --- 体温の表示 --- %>
-              <% if log.temperature_logs.any? %>
-                <% log.temperature_logs.each do |temp| %>
-                  <span class="text-xs bg-orange-50 text-orange-600 px-2 py-1 rounded-full font-bold">
-                    🌡️ <%= temp.value %>°C 
-                    <span class="text-[10px] font-normal opacity-70">(<%= temp.measured_at&.strftime("%H:%M") %>)</span>
-                  </span>
+    <%# --- ログ一覧 --- %>
+    <div class="space-y-4">
+      <% @daily_logs.each do |log| %>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition">
+          <div class="flex items-center space-x-4">
+            <div class="text-3xl">
+              <%= {1=>"😫", 2=>"🙁", 3=>"😐", 4=>"🙂", 5=>"😆"}[log.condition] %>
+            </div>
+            
+            <div>
+              <div class="text-sm text-gray-500 font-medium"><%= log.date.strftime("%Y年%m月%d日") %></div>
+              <div class="flex space-x-3 mt-1 flex-wrap gap-y-2">
+                <span class="text-xs bg-red-50 text-red-600 px-2 py-1 rounded-full font-bold">痛み: <%= log.pain_vas %></span>
+                <span class="text-xs bg-yellow-50 text-yellow-600 px-2 py-1 rounded-full font-bold">倦怠感: <%= log.fatigue_vas %></span>
+                <% if log.stiffness_duration.present? && log.stiffness_duration > 0 %>
+                  <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full font-bold">こわばり: <%= log.stiffness_duration %>分</span>
                 <% end %>
-              <% end %>
-              <%# --- ここまで --- %>
+                <% if log.temperature_logs.any? %>
+                  <% log.temperature_logs.each do |temp| %>
+                    <span class="text-xs bg-orange-50 text-orange-600 px-2 py-1 rounded-full font-bold">
+                      🌡️ <%= temp.value %>°C 
+                      <span class="text-[10px] font-normal opacity-70">(<%= temp.measured_at&.strftime("%H:%M") %>)</span>
+                    </span>
+                  <% end %>
+                <% end %>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="flex items-center space-x-2">
-          <%= link_to "詳細", daily_log_path(log), class: "text-sm text-gray-400 hover:text-blue-600 px-2 py-1" %>
-          <%= link_to "編集", edit_daily_log_path(log), class: "text-sm text-gray-400 hover:text-green-600 px-2 py-1" %>
+          <div class="flex items-center space-x-2">
+            <%= link_to "詳細", daily_log_path(log), class: "text-sm text-gray-400 hover:text-blue-600 px-2 py-1" %>
+            <%= link_to "編集", edit_daily_log_path(log), class: "text-sm text-gray-400 hover:text-green-600 px-2 py-1" %>
+          </div>
         </div>
-      </div>
-    <% end %>
+      <% end %>
 
-    <% if @daily_logs.empty? %>
-      <div class="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
-        <p class="text-gray-400">まだ記録がありません。今日の体調を記録してみましょう！</p>
-      </div>
-    <% end %>
+      <% if @daily_logs.empty? %>
+        <div class="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+          <p class="text-gray-400">まだ記録がありません。今日の体調を記録してみましょう！</p>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>
