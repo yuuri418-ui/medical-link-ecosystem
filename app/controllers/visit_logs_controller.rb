@@ -12,6 +12,13 @@ class VisitLogsController < ApplicationController
                                .pluck(:name)
                                .uniq
                                .sort # 項目名を50音順に並べると見やすくなります
+                               
+    # 📈 グラフ用データ：CRPの推移を例に（後で項目を選択可能にします）
+    # 形式: { "2026-01-01" => 0.3, "2026-02-01" => 0.5 }
+    @chart_data = BloodTestItem.where(visit_log: @visit_logs, name: "CRP")
+                               .joins(:visit_log)
+                               .group("visit_logs.visited_on")
+                               .average(:value)
   end
 
   def new
