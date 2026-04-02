@@ -38,16 +38,33 @@
                       <% item = log.blood_test_items.find { |i| i.name == name } %>
                       <% if item %>
                         <% 
-                          # 🚩 異常値判定ロジック（入力された基準値から上限数値を抽出）
-                          # 例: "0.3以下" → 0.3 | "17.3〜59.7" → 59.7 を取得
-                          upper_limit = item.reference_range.to_s.scan(/\d+\.?\d*/).map(&:to_f).max
-                          is_alert = upper_limit.present? && item.value > upper_limit
+                          # 🚩 異常値判定ロジック（上下限を自動判別）
+                          # 文字列から数値をすべて抽出（例: "17.3〜59.7" -> [17.3, 59.7]）
+                          nums = item.reference_range.to_s.scan(/\d+\.?\d*/).map(&:to_f)
+                          
+                          upper_limit = nums.max
+                          # 数値が2つ以上ある場合（範囲指定）のみ、小さい方を下限とする
+                          lower_limit = nums.size > 1 ? nums.min : nil
+                          
+                          is_high = upper_limit.present? && item.value > upper_limit
+                          is_low  = lower_limit.present? && item.value < lower_limit
                         %>
                         <div class="flex flex-col items-center justify-center">
-                          <span class="<%= is_alert ? 'text-red-600 font-black scale-110' : 'text-gray-900 font-medium' %> transition-all duration-300">
+                          <span class="transition-all duration-300 <%= 
+                            if is_high
+                              'text-red-600 font-black scale-110'
+                            elsif is_low
+                              'text-orange-500 font-black scale-110'
+                            else
+                              'text-gray-900 font-medium'
+                            end %>">
+                            
                             <%= item.value %>
-                            <% if is_alert %>
-                              <span class="text-[10px] ml-0.5" title="基準値(<%= upper_limit %>)超え">⚠️</span>
+                            
+                            <% if is_high %>
+                              <span class="text-[10px] ml-0.5" title="上限(<%= upper_limit %>)超え">⚠️</span>
+                            <% elsif is_low %>
+                              <span class="text-[10px] ml-0.5" title="下限(<%= lower_limit %>)未満">⬇️</span>
                             <% end %>
                           </span>
                           <span class="text-[10px] text-gray-400 mt-0.5"><%= item.unit %></span>
@@ -66,7 +83,10 @@
           </table>
         </div>
       </div>
-      <p class="mt-2 text-[10px] text-gray-400 italic">※ 各項目の基準値（上限）を超えた場合に強調表示されます。</p>
+      <div class="mt-3 flex gap-4 text-[10px] italic">
+        <p class="text-red-600 font-bold">● 上限超え (警告)</p>
+        <p class="text-orange-500 font-bold">● 下限未満 (注意)</p>
+      </div>
     </div>
   <% end %>
 
