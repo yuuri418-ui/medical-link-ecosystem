@@ -3,11 +3,13 @@ class DailyLogsController < ApplicationController
 
   def new
     @daily_log = current_user.daily_logs.build
+    # 体温の入力欄を1つ用意しておく（複数入力も可能）
+    @daily_log.temperature_logs.build 
   end
 
   def index
     # 新しい日付順に取得
-    @daily_logs = current_user.daily_logs.order(date: :desc)
+    @daily_logs = current_user.daily_logs.includes(:temperature_logs).order(date: :desc)
   end
 
   def show
@@ -28,6 +30,7 @@ class DailyLogsController < ApplicationController
   private
 
   def daily_log_params
-    params.require(:daily_log).permit(:date, :condition, :stiffness_duration, :pain_vas, :fatigue_vas, :memo)
+    params.require(:daily_log).permit(:date, :condition, :stiffness_duration, :pain_vas, :fatigue_vas, :memo,
+    temperature_logs_attributes: [:id, :value, :measured_at, :_destroy])
   end
 end
