@@ -2,16 +2,16 @@ class VisitLogsController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    # 検査結果（blood_test_items）を持っている通院記録だけを、日付順に取得
-    @visit_logs = VisitLog.includes(:blood_test_items)
-                          .joins(:blood_test_items)
-                          .distinct
-                          .order(test_date: :asc)
-
-    # 全ての通院記録から「登場する検査項目名」をユニークに抽出（縦軸用）
-    @item_names = BloodTestItem.where(visit_log_id: @visit_logs.pluck(:id))
+    # シンプルに「全ての通院記録を日付順（古い順）」で取得
+    # includes を使うことで、N+1問題を回避しつつ関連データを効率よく読み込みます
+    @visit_logs = VisitLog.includes(:blood_test_items).order(visited_on: :asc)
+  
+    # 全ての記録の中から、登録されている「検査項目名」をダブりなく抽出（表の縦軸用）
+    # pluck(:id) を使うことで、メモリ消費を抑えてIDだけを取り出します
+    @item_names = BloodTestItem.where(visit_log_id: @visit_logs.map(&:id))
                                .pluck(:name)
                                .uniq
+                               .sort # 項目名を50音順に並べると見やすくなります
   end
 
   def new
