@@ -6,6 +6,11 @@ class DailyLog < ApplicationRecord
   validates :date, presence: true, uniqueness: { scope: :user_id }
 
   # 子要素の保存を許可し、中身が空なら無視する
-  accepts_nested_attributes_for :temperature_logs, allow_destroy: true, reject_if: :all_blank
-  accepts_nested_attributes_for :medication_logs, allow_destroy: true, reject_if: :all_blank
+  accepts_nested_attributes_for :medication_logs, 
+    allow_destroy: true, 
+    reject_if: proc { |attributes| attributes['medicine_name'].blank? }
+
+  accepts_nested_attributes_for :temperature_logs, 
+    allow_destroy: true, 
+    reject_if: proc { |attributes| attributes['value'].blank? }
 end
