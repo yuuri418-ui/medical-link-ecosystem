@@ -20,12 +20,14 @@ class DailyLogsController < ApplicationController
   def index
     @daily_logs = current_user.daily_logs.includes(:temperature_logs).order(date: :desc)
 
-    # 1. 表示期間の判定（デフォルトは14日）
-    @period = params[:period] || "14days"
+    # 1. 表示期間の判定（デフォルトは1ヶ月）
+    @period = params[:period] || "1month"
     start_date = case @period
-                 when "1month" then 1.month.ago.to_date
+                 when "1month"  then 1.month.ago.to_date
                  when "3months" then 3.months.ago.to_date
-                 else 14.days.ago.to_date
+                 when "6months" then 6.months.ago.to_date 
+                 when "1year"   then 1.year.ago.to_date
+                 else 1.month.ago.to_date
                  end
 
     # 2. データの取得
