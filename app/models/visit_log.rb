@@ -1,7 +1,6 @@
 class VisitLog < ApplicationRecord
   belongs_to :user
 
-  has_many :blood_test_results, dependent: :destroy
   has_many :prescribed_medicines, dependent: :destroy
   has_many :blood_test_items, dependent: :destroy
 
