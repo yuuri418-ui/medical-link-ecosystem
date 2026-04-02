@@ -9,12 +9,17 @@
   <% if @visit_logs.any? %>
     <div class="space-y-6">
       <% @visit_logs.each do |log| %>
+      <%= link_to log, class: "block group" do %>
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <% # ヘッダー部分 %>
           <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
             <div>
-              <span class="text-lg font-bold text-gray-800"><%= log.visited_on.strftime("%Y年%m月%d日") %></span>
-              <span class="ml-3 text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded"><%= log.department %></span>
+              <span class="text-lg font-bold text-gray-800 group-hover:text-blue-600 group-hover:underline">
+                <%= log.visited_on.strftime("%Y年%m月%d日") %>
+              </span>
+              <span class="ml-3 text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                <%= log.department %>
+              </span>
             </div>
             <div class="text-sm text-gray-500">
               担当: <%= log.doctor_name.present? ? log.doctor_name : "未入力" %>
@@ -69,6 +74,7 @@
             <% end %>
           </div>
         </div>
+      <% end %>
       <% end %>
     </div>
   <% else %>
