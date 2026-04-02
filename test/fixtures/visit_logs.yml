@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  visited_on: 2026-04-02
+  hospital_name: MyString
+  memo: MyText
+
+two:
+  user: two
+  visited_on: 2026-04-02
+  hospital_name: MyString
+  memo: MyText
