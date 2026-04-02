@@ -1,4 +1,78 @@
-<div>
-  <h1 class="font-bold text-4xl">DailyLogs#show</h1>
-  <p>Find me in app/views/daily_logs/show.html.erb</p>
+<div class="max-w-2xl mx-auto py-8 px-4">
+  <div class="flex justify-between items-center mb-6">
+    <%= link_to '← 戻る', daily_logs_path, class: "text-gray-500 hover:text-blue-600 font-medium" %>
+    <%= link_to '編集する', edit_daily_log_path(@daily_log), class: "bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold shadow-sm transition" %>
+  </div>
+
+  <div class="bg-white shadow-xl rounded-3xl overflow-hidden border border-blue-50">
+    <%# ヘッダー（日付と体調アイコン） %>
+    <div class="bg-blue-600 px-8 py-10 text-center text-white">
+      <p class="text-blue-100 font-bold mb-2"><%= @daily_log.date.strftime("%Y年 %m月 %d日") %></p>
+      <div class="text-6xl mb-4">
+        <%= {1=>"😫", 2=>"🙁", 3=>"😐", 4=>"🙂", 5=>"😆"}[@daily_log.condition] %>
+      </div>
+      <p class="text-xl font-bold">今日の気分: <%= @daily_log.condition %>/5</p>
+    </div>
+
+    <div class="p-8 space-y-8">
+      <%# 体温 %>
+      <% if @daily_log.temperature_logs.any? %>
+        <section>
+          <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">Temperature / 体温</h2>
+          <div class="flex flex-wrap gap-3">
+            <% @daily_log.temperature_logs.each do |temp| %>
+              <div class="bg-orange-50 border border-orange-100 px-4 py-2 rounded-2xl flex items-center">
+                <span class="text-orange-600 font-bold text-lg mr-2"><%= temp.value %>°C</span>
+                <span class="text-xs text-orange-400">(<%= temp.measured_at&.strftime("%H:%M") %>)</span>
+              </div>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
+
+      <%# 服薬状況 %>
+      <section>
+        <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">Medication / 服薬</h2>
+        <div class="space-y-2">
+          <% @daily_log.medication_logs.each do |med| %>
+            <div class="flex items-center justify-between p-3 <%= med.is_taken ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100' %> border rounded-xl">
+              <div class="flex items-center">
+                <span class="mr-3"><%= med.is_taken ? "✅" : "❌" %></span>
+                <span class="font-bold <%= med.is_taken ? 'text-green-800' : 'text-gray-400' %>"><%= med.medicine_name %></span>
+              </div>
+              <span class="text-xs text-gray-500"><%= med.dosage %></span>
+            </div>
+          <% end %>
+        </div>
+      </section>
+
+      <%# VAS 指標 %>
+      <section class="grid grid-cols-2 gap-4">
+        <div class="bg-gray-50 p-4 rounded-2xl text-center">
+          <p class="text-xs font-bold text-gray-400 mb-1">痛み (VAS)</p>
+          <p class="text-2xl font-black text-blue-600"><%= @daily_log.pain_vas %><span class="text-sm ml-1 text-gray-400">/10</span></p>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-2xl text-center">
+          <p class="text-xs font-bold text-gray-400 mb-1">倦怠感 (VAS)</p>
+          <p class="text-2xl font-black text-blue-600"><%= @daily_log.fatigue_vas %><span class="text-sm ml-1 text-gray-400">/10</span></p>
+        </div>
+      </section>
+
+      <%# こわばり %>
+      <% if @daily_log.stiffness_duration.to_i > 0 %>
+        <section>
+          <h2 class="text-sm font-bold text-gray-400 mb-1">朝のこわばり</h2>
+          <p class="text-lg font-bold text-gray-700"><%= @daily_log.stiffness_duration %> 分</p>
+        </section>
+      <% end %>
+
+      <%# メモ %>
+      <% if @daily_log.memo.present? %>
+        <section class="pt-4 border-t border-gray-100">
+          <h2 class="text-sm font-bold text-gray-400 mb-2">メモ</h2>
+          <div class="text-gray-700 leading-relaxed whitespace-pre-wrap"><%= @daily_log.memo %></div>
+        </section>
+      <% end %>
+    </div>
+  </div>
 </div>
