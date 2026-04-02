@@ -2,7 +2,16 @@ class VisitLogsController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @visit_logs = current_user.visit_logs.includes(:blood_test_results, :prescribed_medicines).order(visited_on: :desc)
+    # 検査結果（blood_test_items）を持っている通院記録だけを、日付順に取得
+    @visit_logs = VisitLog.includes(:blood_test_items)
+                          .joins(:blood_test_items)
+                          .distinct
+                          .order(test_date: :asc)
+
+    # 全ての通院記録から「登場する検査項目名」をユニークに抽出（縦軸用）
+    @item_names = BloodTestItem.where(visit_log_id: @visit_logs.pluck(:id))
+                               .pluck(:name)
+                               .uniq
   end
 
   def new
