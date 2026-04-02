@@ -4,6 +4,42 @@
     <%= link_to "新しく記録する", new_daily_log_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow-sm transition" %>
   </div>
 
+  <%# --- グラフセクション --- %>
+  <div class="max-w-5xl mx-auto py-8 px-4">
+    <%# 期間切り替えボタン %>
+    <div class="flex justify-center space-x-2 mb-8 bg-gray-100 p-1 rounded-xl w-fit mx-auto">
+      <% [["14日", "14days"], ["1ヶ月", "1month"], ["3ヶ月", "3months"]].each do |label, p| %>
+        <%= link_to label, daily_logs_path(period: p), 
+          class: "px-6 py-2 rounded-lg text-sm font-bold transition #{@period == p ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}" %>
+      <% end %>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+      <%# 痛み・倦怠感のグラフ %>
+      <div class="bg-white p-6 rounded-3xl shadow-sm border border-blue-50">
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Pain & Fatigue / 痛み・倦怠感</h3>
+        <div class="h-64">
+          <%= line_chart [
+            { name: "痛み", data: @pain_data, color: "#2563eb" },
+            { name: "倦怠感", data: @fatigue_data, color: "#10b981" }
+          ], min: 0, max: 10, points: @period == "14days", curve: true %>
+        </div>
+      </div>
+
+      <%# 体温のグラフ %>
+      <div class="bg-white p-6 rounded-3xl shadow-sm border border-orange-50">
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Temperature / 体温推移</h3>
+        <div class="h-64">
+          <%= line_chart @temp_data, 
+              color: "#f97316", 
+              min: 35, max: 39, 
+              points: @period == "14days", 
+              curve: true, 
+              suffix: "°C" %>
+        </div>
+      </div>
+    </div>
+
   <div class="space-y-4">
     <% @daily_logs.each do |log| %>
       <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition">

@@ -18,8 +18,27 @@ class DailyLogsController < ApplicationController
   end
 
   def index
-    # 新しい日付順に取得
     @daily_logs = current_user.daily_logs.includes(:temperature_logs).order(date: :desc)
+
+    # 1. 表示期間の判定（デフォルトは14日）
+    @period = params[:period] || "14days"
+    start_date = case @period
+                 when "1month" then 1.month.ago.to_date
+                 when "3months" then 3.months.ago.to_date
+                 else 14.days.ago.to_date
+                 end
+
+    # 2. データの取得
+    chart_logs = current_user.daily_logs.where(date: start_date..Date.today).order(:date)
+
+    # 3. 各グラフ用データの作成
+    @pain_data = chart_logs.pluck(:date, :pain_vas).to_h
+    @fatigue_data = chart_logs.pluck(:date, :fatigue_vas).to_h
+  
+    # 体温は1日に複数ある可能性があるため、その日の「最高体温」をグラフにする例
+    @temp_data = chart_logs.joins(:temperature_logs)
+                           .group(:date)
+                           .maximum(:value)
   end
 
   def show
