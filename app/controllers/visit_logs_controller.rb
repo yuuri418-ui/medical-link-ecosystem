@@ -2,20 +2,16 @@ class VisitLogsController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    # シンプルに「全ての通院記録を日付順（古い順）」で取得
-    # includes を使うことで、N+1問題を回避しつつ関連データを効率よく読み込みます
-    @visit_logs = VisitLog.includes(:blood_test_items).order(visited_on: :asc)
+    @visit_logs = current_user.visit_logs.order(:visited_on)
   
-    # 全ての記録の中から、登録されている「検査項目名」をダブりなく抽出（表の縦軸用）
-    # pluck(:id) を使うことで、メモリ消費を抑えてIDだけを取り出します
-    @item_names = BloodTestItem.where(visit_log_id: @visit_logs.map(&:id))
-                               .pluck(:name)
-                               .uniq
-                               .sort # 項目名を50音順に並べると見やすくなります
-                               
-    # 📈 グラフ用データ：CRPの推移を例に（後で項目を選択可能にします）
-    # 形式: { "2026-01-01" => 0.3, "2026-02-01" => 0.5 }
-    @chart_data = BloodTestItem.where(visit_log: @visit_logs, name: "CRP")
+    # 全ての受診記録から、存在する検査項目名を重複なく取得
+    @item_names = BloodTestItem.where(visit_log: @visit_logs).pluck(:name).uniq
+  
+    # 表示する項目を決定（クリックされた項目、なければ最初の項目、それもなければ"CRP"）
+    @active_item = params[:graph_item] || @item_names.first || "CRP"
+
+    # 📈 グラフ用データ：@active_item に基づいて取得
+    @chart_data = BloodTestItem.where(visit_log: @visit_logs, name: @active_item)
                                .joins(:visit_log)
                                .group("visit_logs.visited_on")
                                .average(:value)
