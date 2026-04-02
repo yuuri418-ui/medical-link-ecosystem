@@ -31,8 +31,10 @@ class DailyLogsController < ApplicationController
   private
 
   def daily_log_params
-    params.require(:daily_log).permit(:date, :condition, :stiffness_duration, :pain_vas, :fatigue_vas, :memo,
-    temperature_logs_attributes: [:id, :value, :measured_at, :_destroy]), 
-    medication_logs_attributes: [:id, :medicine_name, :dosage, :is_taken, :_destroy]
+    params.require(:daily_log).permit(
+      :date, :condition, :stiffness_duration, :pain_vas, :fatigue_vas, :memo,
+      temperature_logs_attributes: [:id, :value, :measured_at, :_destroy], # ここはカンマ
+      medication_logs_attributes: [:id, :medicine_name, :dosage, :is_taken, :_destroy] # ここが最後なので閉じカッコ
+    )
   end
 end
