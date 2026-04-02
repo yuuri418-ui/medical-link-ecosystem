@@ -27,5 +27,10 @@ class User < ApplicationRecord
 
   # 携帯番号の形式チェック（数字のみ、10桁〜11桁など ）
   validates :phone_number, format: { with: /\A\d{10,11}\z/, message: "はハイフンなしの数字のみで入力してください" }
+
+  # 最新の受診記録から処方薬リストを取得するメソッド
+  def latest_prescribed_medicines
+    visit_logs.order(visited_on: :desc).first&.prescribed_medicines || []
+  end
 end
 
