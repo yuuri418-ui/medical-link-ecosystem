@@ -17,7 +17,6 @@ class VisitLogsController < ApplicationController
   def new
     @visit_log = current_user.visit_logs.build
     # 最初から3つずつ入力欄を表示させる
-    3.times { @visit_log.blood_test_results.build }
     3.times { @visit_log.prescribed_medicines.build }
     3.times { @visit_log.blood_test_items.build }
   end
