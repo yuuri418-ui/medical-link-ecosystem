@@ -23,9 +23,12 @@ class DailyLogsController < ApplicationController
   end
 
   def show
+    @daily_log = current_user.daily_logs.find(params[:id])
   end
 
   def edit
+    @daily_log = current_user.daily_logs.find(params[:id])
+    # 編集画面でも、もし体温や服薬のデータがなければ箱を作っておく（必要に応じて）
   end
 
   def create
@@ -35,6 +38,15 @@ class DailyLogsController < ApplicationController
     else
       render :new, status: :unprocessable_entity
     end
+  end
+
+  def update
+    @daily_log = current_user.daily_logs.find(params[:id])
+    if @daily_log.update(daily_log_params)
+      redirect_to daily_log_path(@daily_log), notice: "体調ログを更新しました。"
+    else
+      render :edit, status: :unprocessable_entity
+   end
   end
 
   private
