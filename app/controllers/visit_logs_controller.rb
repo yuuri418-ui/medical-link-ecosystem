@@ -28,6 +28,16 @@ class VisitLogsController < ApplicationController
   end
 
   def edit
+    @visit_log = current_user.visit_logs.find(params[:id])
+  end
+
+  def update
+    @visit_log = current_user.visit_logs.find(params[:id])
+    if @visit_log.update(visit_log_params)
+      redirect_to @visit_log, notice: "受診記録を更新しました。"
+    else
+     render :edit, status: :unprocessable_entity
+    end
   end
 
   private
