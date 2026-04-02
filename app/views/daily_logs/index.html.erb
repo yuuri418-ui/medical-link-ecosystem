@@ -18,7 +18,7 @@
             <div class="flex space-x-3 mt-1 flex-wrap gap-y-2">
               <span class="text-xs bg-red-50 text-red-600 px-2 py-1 rounded-full font-bold">痛み: <%= log.pain_vas %></span>
               <span class="text-xs bg-yellow-50 text-yellow-600 px-2 py-1 rounded-full font-bold">倦怠感: <%= log.fatigue_vas %></span>
-              <% if log.stiffness_duration > 0 %>
+              <% if log.stiffness_duration.present? && log.stiffness_duration > 0 %>
                 <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full font-bold">こわばり: <%= log.stiffness_duration %>分</span>
               <% end %>
               <%# --- 体温の表示 --- %>

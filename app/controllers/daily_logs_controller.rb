@@ -5,6 +5,7 @@ class DailyLogsController < ApplicationController
     @daily_log = current_user.daily_logs.build
     # 体温の入力欄を1つ用意しておく（複数入力も可能）
     @daily_log.temperature_logs.build 
+    @daily_log.medication_logs.build
   end
 
   def index
@@ -30,7 +31,10 @@ class DailyLogsController < ApplicationController
   private
 
   def daily_log_params
-    params.require(:daily_log).permit(:date, :condition, :stiffness_duration, :pain_vas, :fatigue_vas, :memo,
-    temperature_logs_attributes: [:id, :value, :measured_at, :_destroy])
+    params.require(:daily_log).permit(
+      :date, :condition, :stiffness_duration, :pain_vas, :fatigue_vas, :memo,
+      temperature_logs_attributes: [:id, :value, :measured_at, :_destroy], # ここはカンマ
+      medication_logs_attributes: [:id, :medicine_name, :dosage, :is_taken, :_destroy] # ここが最後なので閉じカッコ
+    )
   end
 end

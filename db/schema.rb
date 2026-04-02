@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_01_112814) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_02_023533) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -26,6 +26,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_112814) do
     t.datetime "updated_at", null: false
     t.index ["user_id", "date"], name: "index_daily_logs_on_user_id_and_date", unique: true
     t.index ["user_id"], name: "index_daily_logs_on_user_id"
+  end
+
+  create_table "medication_logs", force: :cascade do |t|
+    t.bigint "daily_log_id", null: false
+    t.string "medicine_name"
+    t.string "dosage"
+    t.boolean "is_taken"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["daily_log_id"], name: "index_medication_logs_on_daily_log_id"
   end
 
   create_table "temperature_logs", force: :cascade do |t|
@@ -59,5 +69,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_112814) do
   end
 
   add_foreign_key "daily_logs", "users"
+  add_foreign_key "medication_logs", "daily_logs"
   add_foreign_key "temperature_logs", "daily_logs"
 end
