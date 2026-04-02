@@ -25,4 +25,5 @@ Rails.application.routes.draw do
   root "home#index"
 
   resources :daily_logs
+  resources :visit_logs
 end
