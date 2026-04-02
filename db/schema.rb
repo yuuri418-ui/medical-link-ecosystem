@@ -10,9 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_02_023533) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_02_051338) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "blood_test_results", force: :cascade do |t|
+    t.bigint "visit_log_id", null: false
+    t.string "item_name"
+    t.float "value"
+    t.string "unit"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["visit_log_id"], name: "index_blood_test_results_on_visit_log_id"
+  end
 
   create_table "daily_logs", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -36,6 +46,15 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_02_023533) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["daily_log_id"], name: "index_medication_logs_on_daily_log_id"
+  end
+
+  create_table "prescribed_medicines", force: :cascade do |t|
+    t.bigint "visit_log_id", null: false
+    t.string "name"
+    t.string "dosage"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["visit_log_id"], name: "index_prescribed_medicines_on_visit_log_id"
   end
 
   create_table "temperature_logs", force: :cascade do |t|
@@ -68,7 +87,22 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_02_023533) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "visit_logs", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.date "visited_on"
+    t.string "hospital_name"
+    t.string "department"
+    t.string "doctor_name"
+    t.text "memo"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_visit_logs_on_user_id"
+  end
+
+  add_foreign_key "blood_test_results", "visit_logs"
   add_foreign_key "daily_logs", "users"
   add_foreign_key "medication_logs", "daily_logs"
+  add_foreign_key "prescribed_medicines", "visit_logs"
   add_foreign_key "temperature_logs", "daily_logs"
+  add_foreign_key "visit_logs", "users"
 end
