@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  get 'visit_logs/index'
+  get 'visit_logs/new'
+  get 'visit_logs/show'
+  get 'visit_logs/edit'
   get 'daily_logs/new'
   get 'daily_logs/index'
   get 'daily_logs/show'
@@ -21,4 +25,5 @@ Rails.application.routes.draw do
   root "home#index"
 
   resources :daily_logs
+  resources :visit_logs
 end

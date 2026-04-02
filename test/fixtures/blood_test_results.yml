@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  visit_log: one
+  item_name: MyString
+  value: 1.5
+  unit: MyString
+
+two:
+  visit_log: two
+  item_name: MyString
+  value: 1.5
+  unit: MyString
