@@ -19,6 +19,7 @@ class VisitLogsController < ApplicationController
     # 最初から3つずつ入力欄を表示させる
     3.times { @visit_log.blood_test_results.build }
     3.times { @visit_log.prescribed_medicines.build }
+    3.times { @visit_log.blood_test_items.build }
   end
 
   def create
@@ -37,7 +38,9 @@ class VisitLogsController < ApplicationController
   end
 
   def edit
-    @visit_log = current_user.visit_logs.find(params[:id])
+    @visit_log = VisitLog.find(params[:id])
+    # 既存のデータ＋新しい空の入力欄を2つ追加
+    2.times { @visit_log.blood_test_items.build }
   end
 
   def update
@@ -54,8 +57,7 @@ class VisitLogsController < ApplicationController
   def visit_log_params
     params.require(:visit_log).permit(
       :visited_on, :hospital_name, :department, :doctor_name, :memo,
-      blood_test_results_attributes: [:id, :item_name, :value, :unit, :_destroy],
-      prescribed_medicines_attributes: [:id, :name, :dosage, :_destroy]
+      prescribed_medicines_attributes: [:id, :name, :dosage, :_destroy],
       blood_test_items_attributes: [:id, :name, :value, :unit, :category, :reference_range, :_destroy]
     )
   end
