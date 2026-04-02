@@ -1,5 +1,8 @@
 class VisitLogsController < ApplicationController
+  before_action :authenticate_user!
+
   def index
+    @visit_logs = current_user.visit_logs.order(visited_on: :desc)
   end
 
   def new
@@ -9,7 +12,19 @@ class VisitLogsController < ApplicationController
     3.times { @visit_log.prescribed_medicines.build }
   end
 
+  def create
+    @visit_log = current_user.visit_logs.build(visit_log_params)
+    if @visit_log.save
+      # 保存できたら一覧画面へ
+      redirect_to visit_logs_path, notice: "受診記録を保存しました。"
+    else
+      # 失敗したら入力画面を再表示（バリデーションエラーなど）
+      render :new, status: :unprocessable_entity
+    end
+  end
+
   def show
+    @visit_log = current_user.visit_logs.find(params[:id])
   end
 
   def edit
