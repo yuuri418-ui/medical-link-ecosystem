@@ -1,4 +1,80 @@
-<div>
-  <h1 class="font-bold text-4xl">VisitLogs#index</h1>
-  <p>Find me in app/views/visit_logs/index.html.erb</p>
+<div class="max-w-5xl mx-auto py-8 px-4">
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+      🏥 受診記録一覧
+    </h1>
+    <%= link_to '＋ 新規登録', new_visit_log_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow-md transition" %>
+  </div>
+
+  <% if @visit_logs.any? %>
+    <div class="space-y-6">
+      <% @visit_logs.each do |log| %>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <% # ヘッダー部分 %>
+          <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+            <div>
+              <span class="text-lg font-bold text-gray-800"><%= log.visited_on.strftime("%Y年%m月%d日") %></span>
+              <span class="ml-3 text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded"><%= log.department %></span>
+            </div>
+            <div class="text-sm text-gray-500">
+              担当: <%= log.doctor_name.present? ? log.doctor_name : "未入力" %>
+            </div>
+          </div>
+
+          <div class="p-6">
+            <h3 class="text-md font-bold text-gray-700 mb-2"><%= log.hospital_name %></h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <% # 血液検査結果の簡易表示 %>
+              <div class="bg-blue-50/50 p-4 rounded-xl">
+                <p class="text-xs font-bold text-blue-800 mb-2 flex items-center">
+                  <span class="mr-1">🩸</span> 血液検査結果
+                </p>
+                <% if log.blood_test_results.any? %>
+                  <div class="flex flex-wrap gap-2">
+                    <% log.blood_test_results.each do |result| %>
+                      <span class="text-xs bg-white border border-blue-100 px-2 py-1 rounded shadow-sm">
+                        <%= result.item_name %>: <span class="font-bold"><%= result.value %></span> <%= result.unit %>
+                      </span>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <p class="text-xs text-gray-400 italic">記録なし</p>
+                <% end %>
+              </div>
+
+              <% # 処方薬の簡易表示 %>
+              <div class="bg-green-50/50 p-4 rounded-xl">
+                <p class="text-xs font-bold text-green-800 mb-2 flex items-center">
+                  <span class="mr-1">💊</span> 処方された薬
+                </p>
+                <% if log.prescribed_medicines.any? %>
+                  <div class="flex flex-wrap gap-2">
+                    <% log.prescribed_medicines.each do |med| %>
+                      <span class="text-xs bg-white border border-green-100 px-2 py-1 rounded shadow-sm">
+                        <%= med.name %> <span class="text-gray-500 font-normal ml-1"><%= med.dosage %></span>
+                      </span>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <p class="text-xs text-gray-400 italic">記録なし</p>
+                <% end %>
+              </div>
+            </div>
+
+            <% if log.memo.present? %>
+              <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+                <p class="text-xs text-gray-600 leading-relaxed"><%= log.memo %></p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+      <p class="text-gray-500">受診記録がまだありません。</p>
+      <%= link_to '最初の記録を登録する', new_visit_log_path, class: "text-blue-600 font-bold mt-2 inline-block hover:underline" %>
+    </div>
+  <% end %>
 </div>
