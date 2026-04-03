@@ -41,6 +41,13 @@ class DailyLogsController < ApplicationController
     @temp_data = chart_logs.joins(:temperature_logs)
                            .group(:date)
                            .maximum(:value)
+
+    @daily_logs = DailyLog.order(date: :desc)
+
+    respond_to do |format|
+      format.html # 通常の画面表示
+      format.csv { send_data @daily_logs.to_csv, filename: "my_health_log_#{Date.today}.csv" }
+    end
   end
 
   def show

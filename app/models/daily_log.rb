@@ -1,3 +1,5 @@
+require 'csv'
+
 class DailyLog < ApplicationRecord
   belongs_to :user
   has_many :temperature_logs, dependent: :destroy
@@ -54,4 +56,38 @@ class DailyLog < ApplicationRecord
     # 辞書を使って変換（見つからない場合は元の英語を出す）
     parts.map { |part| PAIN_PART_LABELS[part] || part }
   end
+
+  def self.to_csv
+  main_columns = %w[date condition pain_vas fatigue_vas stiffness_duration memo]
+  
+  CSV.generate(headers: true) do |csv|
+    header = main_columns.map { |col| I18n.t("activerecord.attributes.daily_log.#{col}", default: col.humanize) }
+    header += ["体温記録", "痛む部位", "服用した薬"] # ✅ 項目を追加
+    csv << header
+    
+    all.order(date: :desc).each do |log|
+      # 1. 体温
+      temp_display = log.temperature_logs.order(:measured_at).map { |t| 
+        "#{t.measured_at&.in_time_zone('Tokyo')&.strftime('%H:%M')}(#{t.value}℃)" 
+      }.join(" / ")
+
+      # 2. 痛む部位 (JSON)
+      pain_parts_display = log.pain_parts&.is_a?(Array) ? log.pain_parts.join("、") : log.pain_parts
+
+      # ✅ 3. 服薬記録 (medication_logs)
+      # 「服用済み(is_taken: true)」の薬だけを抽出して名前を並べる
+      meds_display = log.medication_logs.where(is_taken: true).map do |m|
+        # 今はそのまま日本語を出す。将来ここを英語変換ロジックに変える
+        m.medicine_name 
+      end.join("、")
+      
+      row = main_columns.map { |col| log.send(col) }
+      row << temp_display
+      row << pain_parts_display
+      row << meds_display # ✅ CSVの行に追加
+      
+      csv << row
+    end
+  end
+end
 end
