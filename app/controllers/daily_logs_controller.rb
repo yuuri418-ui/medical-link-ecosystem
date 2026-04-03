@@ -77,10 +77,10 @@ class DailyLogsController < ApplicationController
     @logs = current_user.daily_logs.where(date: @start_date..@end_date)
 
     # --- 3. グラフ用データの作成 ---
-    # 体温推移
+    @pain_vas_data = @logs.map { |log| [log.date, log.pain_vas] }
+    @fatigue_vas_data = @logs.map { |log| [log.date, log.fatigue_vas] }
+
     @temperature_data = @logs.map { |log| [log.date, log.temperature] }
-    # 倦怠感推移
-    @fatigue_data = @logs.map { |log| [log.date, log.fatigue_level] }
   
     @pain_counts = Hash.new(0)
   
