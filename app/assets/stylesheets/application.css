@@ -81,3 +81,10 @@
   background: white;
   font-size: 14px;
 }
+
+/* 曜日の文字を中央寄せにする */
+.simple-calendar thead th {
+  text-align: center;
+  width: 14.28%; /* 7列均等にする */
+  padding-bottom: 15px;
+}
