@@ -32,5 +32,9 @@ class User < ApplicationRecord
   def latest_prescribed_medicines
     visit_logs.order(visited_on: :desc).first&.prescribed_medicines || []
   end
+
+  def name
+    "#{last_name} #{first_name}"
+  end
 end
 

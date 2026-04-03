@@ -1,8 +1,13 @@
 class ApplicationController < ActionController::Base
+  before_action :authenticate_user!
   # Deviseの機能が使われる前に、カスタムパラメータを許可するメソッドを実行する
   before_action :configure_permitted_parameters, if: :devise_controller?
 
   private
+
+  def after_sign_in_path_for(resource)
+    root_path
+  end
 
   def configure_permitted_parameters
     # 新規登録（sign_up）の際に、追加したカラムの保存を許可する
