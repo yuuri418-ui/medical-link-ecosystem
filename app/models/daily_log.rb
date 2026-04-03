@@ -1,3 +1,5 @@
+require 'csv'
+
 class DailyLog < ApplicationRecord
   belongs_to :user
   has_many :temperature_logs, dependent: :destroy
@@ -53,5 +55,21 @@ class DailyLog < ApplicationRecord
     
     # 辞書を使って変換（見つからない場合は元の英語を出す）
     parts.map { |part| PAIN_PART_LABELS[part] || part }
+  end
+
+  def self.to_csv
+    # 出力したいカラム（列）を定義
+    # 体温などはネストされているので、ここでは基本項目をメインにします
+    columns = %w[date condition pain_vas fatigue_vas stiffness_duration memo]
+    
+    CSV.generate(headers: true) do |csv|
+      # ヘッダー（1行目）
+      csv << columns.map { |column| I18n.t("activerecord.attributes.daily_log.#{column}", default: column.humanize) }
+      
+      # データ（2行目以降）
+      all.each do |log|
+        csv << columns.map { |column| log.send(column) }
+      end
+    end
   end
 end
