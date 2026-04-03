@@ -20,25 +20,37 @@
       </div>
 
       <div class="mt-1 flex-grow flex flex-col justify-center items-center">
-        <% if logs.any? %>
-          <% log = logs.first %>
-          <%= link_to daily_log_path(log), class: "no-underline w-full text-center" do %>
-            <% # 痛みと倦怠感の小さなバー %>
-            <div class="flex gap-1 justify-center mb-1">
-              <div class="w-1/3 h-1 bg-red-400 rounded-full"></div>
-              <div class="w-1/3 h-1 bg-purple-400 rounded-full"></div>
-            </div>
-            <% # 数値の表示 %>
-            <div class="text-[10px] font-black text-gray-700 leading-tight">
-              P<%= log.pain_vas %> F<%= log.fatigue_vas %>
-            </div>
-          <% end %>
-        <% else %>
-          <%= link_to new_daily_log_path(date: date), class: "text-gray-200 no-underline hover:text-blue-400" do %>
-            <span class="text-lg">+</span>
-          <% end %>
-        <% end %>
+  <% if logs.any? %>
+    <% log = logs.first %>
+    <%= link_to daily_log_path(log), class: "no-underline w-full text-center group" do %>
+      
+      <% # ✅ コンディションに応じた絵文字アイコンの表示 %>
+      <div class="text-2xl mb-1 transition-transform group-hover:scale-110">
+        <%= case log.condition.to_i
+            when 5 then "😆" # 絶好調
+            when 4 then "🙂" # 良い
+            when 3 then "😐" # 普通
+            when 2 then "😟" # 悪い
+            when 1 then "😫" # 絶不調
+            else "😶"
+            end %>
       </div>
+
+      <% # ✅ 痛みの強さを小さなドットの色で表現（数字は消す） %>
+      <div class="flex justify-center gap-0.5">
+        <% # 痛みが強い(VASが高い)ほど赤くするなどの演出も可能です %>
+        <div class="w-1.5 h-1.5 rounded-full <%= log.pain_vas.to_i > 5 ? 'bg-red-500' : 'bg-red-300' %>"></div>
+        <div class="w-1.5 h-1.5 rounded-full <%= log.fatigue_vas.to_i > 5 ? 'bg-purple-500' : 'bg-purple-300' %>"></div>
+      </div>
+
+    <% end %>
+  <% else %>
+    <% # 記録がない日の表示（＋マーク） %>
+    <%= link_to new_daily_log_path(date: date), class: "text-gray-200 no-underline hover:text-blue-400" do %>
+      <span class="text-lg">+</span>
+    <% end %>
+  <% end %>
+</div>
     </div>
   <% end %>
 </div>
