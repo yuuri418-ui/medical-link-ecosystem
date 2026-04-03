@@ -9,4 +9,6 @@ module DailyLogsHelper
     else "bg-gray-200"
     end
   end
+
+  
 end

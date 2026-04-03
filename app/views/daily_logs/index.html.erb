@@ -19,39 +19,54 @@
         <%= date.day %>
       </div>
 
-      <div class="mt-1 flex-grow flex flex-col justify-center items-center">
+      <div class="mt-2 flex-grow flex flex-col justify-center items-center">
   <% if logs.any? %>
     <% log = logs.first %>
-    <%= link_to daily_log_path(log), class: "no-underline w-full text-center group" do %>
+    <%= link_to daily_log_path(log), class: "no-underline w-full text-center group block" do %>
       
-      <% # ✅ コンディションに応じた絵文字アイコンの表示 %>
-      <div class="text-2xl mb-1 transition-transform group-hover:scale-110">
+      <% # 1. 顔アイコン %>
+      <div class="text-2xl mb-2 transition-transform group-hover:scale-110">
         <%= case log.condition.to_i
-            when 5 then "😆" # 絶好調
-            when 4 then "🙂" # 良い
-            when 3 then "😐" # 普通
-            when 2 then "😟" # 悪い
-            when 1 then "😫" # 絶不調
+            when 5 then "😆"
+            when 4 then "🙂"
+            when 3 then "😐"
+            when 2 then "😟"
+            when 1 then "😫"
             else "😶"
             end %>
       </div>
 
-      <% # ✅ 痛みの強さを小さなドットの色で表現（数字は消す） %>
-      <div class="flex justify-center gap-0.5">
-        <% # 痛みが強い(VASが高い)ほど赤くするなどの演出も可能です %>
-        <div class="w-1.5 h-1.5 rounded-full <%= log.pain_vas.to_i > 5 ? 'bg-red-500' : 'bg-red-300' %>"></div>
-        <div class="w-1.5 h-1.5 rounded-full <%= log.fatigue_vas.to_i > 5 ? 'bg-purple-500' : 'bg-purple-300' %>"></div>
-      </div>
+    <% # 2. 痛みのインジケーター（スタイルを直接指定して確実に表示） %>
+    <div class="flex justify-center gap-2 mt-2">
+      <% # 痛みのドット（赤系） %>
+      <div style="width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; background-color: <%= log.pain_vas.to_i > 5 ? '#ef4444' : '#fecaca' %>;" 
+           title="痛み: <%= log.pain_vas %>"></div>
+  
+      <% # 倦怠感のドット（紫系） %>
+      <div style="width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; background-color: <%= log.fatigue_vas.to_i > 5 ? '#a855f7' : '#e9d5ff' %>;" 
+           title="倦怠感: <%= log.fatigue_vas %>"></div>
+    </div>
 
     <% end %>
   <% else %>
-    <% # 記録がない日の表示（＋マーク） %>
-    <%= link_to new_daily_log_path(date: date), class: "text-gray-200 no-underline hover:text-blue-400" do %>
-      <span class="text-lg">+</span>
-    <% end %>
-  <% end %>
-</div>
+    <% # 記録がない日の ＋ マーク %>
+    <div class="flex justify-center items-center h-10">
+      <%= link_to new_daily_log_path(date: date), class: "text-gray-200 no-underline hover:text-blue-400 transition-colors" do %>
+        <span class="text-lg">+</span>
+      <% end %>
     </div>
   <% end %>
 </div>
+  <% end %>
+  </div>
+
+  <div class="mt-4 flex justify-center gap-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+  <div class="flex items-center gap-1">
+    <div style="width: 8px; height: 8px; border-radius: 50%; background-color: #ef4444;"></div> 痛み (VAS)
+  </div>
+  <div class="flex items-center gap-1">
+    <div style="width: 8px; height: 8px; border-radius: 50%; background-color: #a855f7;"></div> 倦怠感 (VAS)
+  </div>
 </div>
+</div>
+
