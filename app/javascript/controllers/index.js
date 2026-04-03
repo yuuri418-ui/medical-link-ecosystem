@@ -1,14 +1,16 @@
 
 import { Application } from "stimulus"
+import BodySchemaController from "./body_schema_controller"
+import HeatmapController from "./heatmap_controller"
 
-// 1. まず Stimulus アプリケーションの土台（application）を定義する
+// 2. Stimulusアプリケーションを起動する
 const application = Application.start()
 
-// 2. 作成した土台をグローバル（window）に公開する（これでエラーが消えます）
-window.Application = application
+// 3. グローバルに公開する（デバッグ用）
+window.application = application
 
-// 3. 全身シェーマのコントローラーをインポートして登録する
-import BodySchemaController from "./body_schema_controller"
+// 4. コントローラーを登録する（最後に実行する）
 application.register("body-schema", BodySchemaController)
+application.register("heatmap", HeatmapController)
 
 export { application }
