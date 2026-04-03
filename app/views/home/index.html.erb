@@ -1,10 +1,16 @@
 <div class="max-w-md mx-auto py-10 px-6">
-  <% # ヘッダー部分 %>
   <div class="text-center mb-10">
-    <p class="text-xs font-bold text-blue-500 mb-1 tracking-widest uppercase">おかえりなさい</p>
+    <p class="text-xs font-bold text-blue-500 mb-1 tracking-widest uppercase">こんにちは</p>
+    
     <h1 class="text-3xl font-extrabold text-gray-800 mb-2 tracking-tight">
-      <%= current_user.name %> さん
+      <% # ✅ current_user が存在する場合（ログイン中）だけ名前を表示 %>
+      <% if current_user %>
+        <%= current_user.name %> さん
+      <% else %>
+        ゲスト さん
+      <% end %>
     </h1>
+    
     <p class="text-sm text-gray-400 font-medium">今日の体調はいかがですか？</p>
   </div>
 
@@ -45,8 +51,8 @@
 
   <div class="mt-12 flex justify-center">
     <%= link_to destroy_user_session_path, 
-                data: { turbo_method: :delete }, 
-                class: "flex items-center space-x-2 text-gray-400 hover:text-red-500 transition-colors" do %>
+                data: { "turbo-method": :delete }, 
+                class: "flex items-center space-x-2 text-gray-400 hover:text-red-500 transition-colors no-underline" do %>
       <span class="text-sm font-medium">ログアウト</span>
       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
