@@ -54,3 +54,5 @@ gem "sprockets-rails", "~> 3.5"
 gem "importmap-rails", "~> 2.2"
 
 gem "chartkick"
+
+gem "simple_calendar", "~> 2.4"
