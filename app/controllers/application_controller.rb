@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::Base
+  before_action :authenticate_user!
   # Deviseの機能が使われる前に、カスタムパラメータを許可するメソッドを実行する
   before_action :configure_permitted_parameters, if: :devise_controller?
 
