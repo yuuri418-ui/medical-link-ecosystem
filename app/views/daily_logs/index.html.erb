@@ -12,7 +12,7 @@
   </div>
 
   <div class="bg-white p-6 rounded-[32px] shadow-sm border border-gray-100">
-  <%= month_calendar(events: @daily_logs, attribute: :date) do |date, logs| %>
+  <%= month_calendar(events: @daily_logs, attribute: :date, title: ->(date) { "#{date.year}年 #{date.month}月" } ) do |date, logs| %>
     <div class="flex flex-col h-full">
       <% # 日付の数字 %>
       <div class="text-xs font-bold <%= date.today? ? 'text-blue-600' : 'text-gray-400' %>">
