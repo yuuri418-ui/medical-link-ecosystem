@@ -58,17 +58,30 @@ class DailyLog < ApplicationRecord
   end
 
   def self.to_csv
-    # 出力したいカラム（列）を定義
-    # 体温などはネストされているので、ここでは基本項目をメインにします
-    columns = %w[date condition pain_vas fatigue_vas stiffness_duration memo]
+    # 出力したいメイン項目のカラム
+    main_columns = %w[date condition pain_vas fatigue_vas stiffness_duration memo]
     
     CSV.generate(headers: true) do |csv|
-      # ヘッダー（1行目）
-      csv << columns.map { |column| I18n.t("activerecord.attributes.daily_log.#{column}", default: column.humanize) }
+      # ヘッダーに「体温記録」を追加
+      header = main_columns.map { |col| I18n.t("activerecord.attributes.daily_log.#{col}", default: col.humanize) }
+      header << "体温記録(時間:度)"
+      csv << header
       
-      # データ（2行目以降）
-      all.each do |log|
-        csv << columns.map { |column| log.send(column) }
+      all.order(date: :desc).each do |log|
+        # その日の体温記録をすべて取得し、「12:00(36.5)」のような形式の配列にする
+        temp_strings = log.temperature_logs.order(:measured_at).map do |t|
+          time = t.measured_at&.in_time_zone('Tokyo')&.strftime("%H:%M") || "--:--"
+          "#{time}(#{t.value}℃)"
+        end
+        
+        # 配列を「 / 」で区切って1つの文字列にする
+        temp_display = temp_strings.join(" / ")
+        
+        # 行データを作成
+        row = main_columns.map { |col| log.send(col) }
+        row << temp_display # 最後に体温データを追加
+        
+        csv << row
       end
     end
   end
