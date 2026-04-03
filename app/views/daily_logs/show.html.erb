@@ -58,6 +58,79 @@
         </div>
       </section>
 
+     <% # 1. データの整形（文字列を配列に変換して安全に扱う） %>
+<% 
+  parts = @daily_log.pain_parts
+  parts_array = case parts
+                when String
+                  begin
+                    JSON.parse(parts)
+                  rescue
+                    []
+                  end
+                when Array
+                  parts
+                else
+                  []
+                end
+%>
+
+<% # 2. 表示セクション %>
+<div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 mt-8">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-lg font-bold text-gray-800 flex items-center">
+      <span class="mr-2 text-red-500">📍</span> 痛みの部位
+    </h2>
+    <% if parts_array.any? %>
+      <span class="text-xs font-bold px-3 py-1 bg-red-100 text-red-600 rounded-full">
+        <%= parts_array.size %> 箇所の記録
+      </span>
+    <% end %>
+  </div>
+
+  <div class="flex flex-col md:flex-row items-center md:items-start gap-10" 
+       data-controller="heatmap" 
+       data-heatmap-counts-value="<%= parts_array.map { |p| [p, 1] }.to_h.to_json %>"
+       data-heatmap-max-value="1">
+    
+    <% # 左側：シェーマ（人体図） %>
+    <div class="w-48 flex-shrink-0 bg-gray-50 rounded-2xl p-4">
+      <%= render 'shared/body_schema_display' %>
+    </div>
+
+    <% # 右側：部位名のリスト表示 %>
+    <div class="flex-1">
+      <p class="text-xs font-bold text-gray-400 mb-3 uppercase tracking-widest">Selected Areas</p>
+      
+      <% parts_array_jp = @daily_log.pain_parts_jp %>
+
+      <div class="flex flex-wrap gap-2">
+        <% if parts_array.any? %>
+          <% parts_array_jp.each do |part_name| %>
+            <div class="flex items-center bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm transition-all hover:border-red-200">
+              <div class="w-2 h-2 rounded-full bg-red-400 mr-2"></div>
+              <span class="text-sm font-medium text-gray-700">
+                <%= part_name %>
+              </span>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="py-10 text-center w-full bg-gray-50 rounded-xl border border-dashed border-gray-200">
+            <p class="text-sm text-gray-400">この日の部位記録はありません</p>
+          </div>
+        <% end %>
+      </div>
+
+      <% if @daily_log.memo.present? %>
+        <div class="mt-6 p-4 bg-blue-50 rounded-2xl border border-blue-100">
+          <p class="text-[10px] font-bold text-blue-400 mb-1 uppercase">Related Memo</p>
+          <p class="text-sm text-gray-600 leading-relaxed"><%= @daily_log.memo %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
       <%# こわばり %>
       <% if @daily_log.stiffness_duration.to_i > 0 %>
         <section>

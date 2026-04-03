@@ -2,7 +2,7 @@ class DailyLogsController < ApplicationController
   before_action :authenticate_user!
 
   def new
-    @daily_log = current_user.daily_logs.build
+    @daily_log = current_user.daily_logs.build(date: params[:date] || Date.today)
     @daily_log.temperature_logs.build 
 
     current_user.latest_prescribed_medicines.each do |medicine|
@@ -74,8 +74,17 @@ class DailyLogsController < ApplicationController
     @start_date = params[:start_date].presence || 30.days.ago.to_date.to_s
     @end_date = params[:end_date].presence || Date.today.to_s
 
-    @logs = current_user.daily_logs.where(date: @start_date..@end_date)
+    @logs = current_user.daily_logs.includes(:temperature_logs).where(date: @start_date..@end_date).order(:date)
   
+    @pain_vas_data = @logs.map { |log| [log.date, log.pain_vas] }
+    @fatigue_vas_data = @logs.map { |log| [log.date, log.fatigue_vas] }
+  
+    # ✅ 体温データの取得方法を修正
+    @temperature_data = @logs.map { |log| 
+    # temperature_logsの中から、measurementカラムの最大値を取得
+      max_temp = log.temperature_logs.maximum(:value) || 0
+      [log.date, max_temp] 
+    }
     @pain_counts = Hash.new(0)
   
     @logs.each do |log|
@@ -101,8 +110,9 @@ class DailyLogsController < ApplicationController
   def daily_log_params
     params.require(:daily_log).permit(
       :date, :condition, :stiffness_duration, :pain_vas, :fatigue_vas, :memo,
-      temperature_logs_attributes: [:id, :value, :measured_at, :_destroy], # ここはカンマ
-      medication_logs_attributes: [:id, :medicine_name, :dosage, :is_taken, :_destroy] # ここが最後なので閉じカッコ
+      :pain_parts, { pain_parts: [] },
+      temperature_logs_attributes: [:id, :value, :measured_at, :_destroy],
+      medication_logs_attributes: [:id, :medicine_name, :dosage, :is_taken, :_destroy]
     )
   end
 end

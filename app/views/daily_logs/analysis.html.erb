@@ -29,30 +29,66 @@
     <% end %>
   </div>
 
-  <% # 👤 ヒートマップ表示エリア %>
-  <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center">
-    <% if @has_pain_data %>
-      <div class="w-64 mb-8">
-        <%= render 'shared/body_schema_display' %>
-      </div>
-      
-      <div class="w-full pt-6 border-t border-gray-50">
-        <h3 class="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider text-center">痛みの頻度（回数）</h3>
-        <div class="flex justify-between items-center px-4">
-          <div class="flex items-center"><div class="w-3 h-3 bg-gray-200 rounded-full mr-2"></div><span class="text-[10px] text-gray-500">0回</span></div>
-          <div class="flex-1 h-1 mx-4 bg-gradient-to-r from-red-100 to-red-600 rounded-full"></div>
-          <div class="flex items-center"><div class="w-3 h-3 bg-red-600 rounded-full mr-2"></div><span class="text-[10px] text-gray-500">最多（<%= @max_count %>回）</span></div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+  
+  <% # 左側：ヒートマップ %>
+  <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+    <h2 class="text-sm font-bold text-gray-700 mb-4 flex items-center">
+      <span class="mr-2">👤</span> 痛みの部位分布
+    </h2>
+    <div class="flex flex-col items-center">
+      <% if @has_pain_data %>
+        <div class="w-48 mb-6">
+          <%= render 'shared/body_schema_display' %>
         </div>
-      </div>
-    <% else %>
-      <div class="py-12 flex flex-col items-center text-center">
-        <span class="text-4xl mb-4">📝</span>
-        <h3 class="text-gray-700 font-bold mb-2">記録が見つかりませんでした</h3>
-        <p class="text-xs text-gray-400 leading-relaxed px-6">
-          選択された期間（<%= @start_date %> 〜 <%= @end_date %>）には記録がありません。<br>
-          別の日付を選んでみてください。
-        </p>
-      </div>
-    <% end %>
+        <% # 凡例などはそのまま %>
+      <% else %>
+        <p class="py-20 text-xs text-gray-400">期間内の痛み記録はありません</p>
+      <% end %>
+    </div>
   </div>
+  
+  <% # 右側：指標グラフエリア %>
+<div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+  <h2 class="text-sm font-bold text-gray-700 mb-4 flex items-center">
+    <span class="mr-2">📈</span> 体調・指標の推移
+  </h2>
+
+  <div class="space-y-6">
+    <% # 1. 体温グラフ（緑系） %>
+    <div>
+      <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">最高体温 (°C)</p>
+      <%= line_chart @temperature_data,
+                     min: 35.0, max: 42.0,
+                     points: true,
+                     curve: true,
+                     colors: ["#10b981"],
+                     height: "120px" %>
+    </div>
+
+    <% # 2. 痛みグラフ（青系） %>
+    <div>
+      <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">痛み (VAS: 0-10)</p>
+      <%= line_chart @pain_vas_data,
+                     min: 0, max: 10,
+                     points: true,
+                     curve: true,
+                     colors: ["#3b82f6"],
+                     height: "120px" %>
+    </div>
+
+    <% # 3. 倦怠感グラフ（紫系） %>
+    <div>
+      <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">倦怠感 (VAS: 0-10)</p>
+      <%= line_chart @fatigue_vas_data,
+                     min: 0, max: 10,
+                     points: true,
+                     curve: true,
+                     colors: ["#8b5cf6"],
+                     height: "120px" %>
+    </div>
+  </div>
+</div>
+ 
+ 
 </div>

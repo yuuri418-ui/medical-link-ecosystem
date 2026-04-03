@@ -213,6 +213,8 @@ GEM
       actionpack (>= 7.0)
       railties (>= 7.0)
     securerandom (0.4.1)
+    simple_calendar (2.4.3)
+      rails (>= 3.0)
     sprockets (4.2.2)
       concurrent-ruby (~> 1.0)
       logger
@@ -253,6 +255,7 @@ DEPENDENCIES
   pg (~> 1.1)
   puma (>= 5.0)
   rails (~> 7.1.6)
+  simple_calendar (~> 2.4)
   sprockets-rails (~> 3.5)
   tailwindcss-rails (~> 4.4)
   tzinfo-data

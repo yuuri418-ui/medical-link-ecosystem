@@ -1,0 +1,95 @@
+/* デフォルトのテーブルスタイルをリセット */
+.simple-calendar {
+  @apply w-full border-collapse;
+}
+
+.simple-calendar table {
+  @apply w-full border-none;
+}
+
+.simple-calendar thead th {
+  @apply py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-none;
+}
+
+.simple-calendar td {
+  @apply p-1 border-none align-top h-24 sm:h-32;
+}
+
+/* 今日の日付を強調 */
+.simple-calendar .today {
+  @apply bg-blue-50 rounded-2xl;
+}
+
+/* --- カレンダー全体のレイアウト修正 --- */
+.simple-calendar {
+  width: 100%;
+}
+
+/* カレンダーのテーブル構造を整える */
+.simple-calendar table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 8px; /* 日付ごとの隙間 */
+  table-layout: fixed; /* 横幅を均等にする */
+}
+
+/* 曜日のヘッダー (S P A N...) */
+.simple-calendar thead th {
+  padding: 10px 0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: #9ca3af; /* 薄いグレー */
+  text-transform: uppercase;
+}
+
+/* 各日付の枠 (td) */
+.simple-calendar td {
+  background-color: #f9fafb; /* 薄い背景色 */
+  border-radius: 16px;
+  height: 110px;
+  min-width: 80px;
+  vertical-align: top;
+  padding: 8px;
+  transition: all 0.2s;
+}
+
+.simple-calendar td:hover {
+  background-color: #f3f4f6;
+}
+
+/* 今日の日付 */
+.simple-calendar .today {
+  background-color: #eff6ff;
+  border: 2px solid #3b82f6;
+}
+
+/* 前月・次月のリンク (Previous n 2026 Next の部分) */
+.calendar-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.calendar-heading a {
+  text-decoration: none;
+  color: #3b82f6;
+  padding: 5px 15px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: white;
+  font-size: 14px;
+}
+
+/* 曜日の文字を中央寄せにする */
+.simple-calendar thead th {
+  text-align: center;
+  width: 14.28%; /* 7列均等にする */
+  padding-bottom: 15px;
+}
+
+.simple-calendar .flex-grow {
+  min-height: 60px;
+}

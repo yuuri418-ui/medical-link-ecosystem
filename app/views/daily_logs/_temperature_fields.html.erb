@@ -1,0 +1,34 @@
+<div class="nested-fields flex items-center gap-2 mb-3 animate-fade-in">
+  
+  <%# 1. 時間入力 %>
+  <div class="w-24 flex-shrink-0">
+    <% display_time = (f.object.measured_at || Time.current.in_time_zone('Tokyo')).strftime("%H:%M") %>
+    <%= f.time_field :measured_at, 
+        class: "w-full px-2 py-2 border border-gray-100 rounded-xl text-xs bg-gray-50 text-gray-700 focus:ring-2 focus:ring-blue-100 focus:bg-white outline-none transition-all shadow-sm",
+        value: display_time %>
+  </div>
+
+  <%# 2. 体温入力：内側の pr-4 (右余白) を少し増やして ℃ を内側に寄せます %>
+  <div class="flex-grow flex items-center border border-gray-100 rounded-xl bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-100 transition-all overflow-hidden">
+    <%= f.number_field :value, 
+        step: 0.1, 
+        class: "w-full pl-3 py-2 border-none text-sm focus:ring-0 bg-transparent text-gray-700", 
+        placeholder: "36.5" %>
+    
+    <%# ✅ pr-3 を pr-5 に変更：これで右端から ℃ が少し離れて、ゆとりが生まれます %>
+    <span class="pr-5 text-gray-400 text-xs font-medium pointer-events-none">
+      ℃
+    </span>
+  </div>
+  
+  <%# 3. 削除ボタン %>
+  <div class="flex-shrink-0">
+    <button type="button" 
+            class="p-1.5 text-gray-300 hover:text-red-400 transition-colors" 
+            data-action="click->temperature#remove">
+      🗑️
+    </button>
+  </div>
+
+  <%= f.hidden_field :_destroy %>
+</div>
