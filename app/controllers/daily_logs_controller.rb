@@ -70,6 +70,27 @@ class DailyLogsController < ApplicationController
    end
   end
 
+  def analysis
+    # 1. 期間の取得（デフォルトは直近30日間）
+    @start_date = params[:start_date].presence || 30.days.ago.to_date.to_s
+    @end_date = params[:end_date].presence || Date.today.to_s
+
+    # 2. 指定期間のログを取得
+    logs = current_user.daily_logs.where(date: @start_date..@end_date)
+
+    # 3. 部位ごとの出現回数をカウント
+    # 例: { "right_knee" => 12, "head" => 5 }
+    @pain_counts = Hash.new(0)
+    logs.each do |log|
+      # pain_parts は JSON配列なので、パースしてカウント
+      parts = log.pain_parts.is_a?(String) ? JSON.parse(log.pain_parts) : log.pain_parts
+      parts&.each { |part| @pain_counts[part] += 1 }
+    end
+
+    # 4. 最大値を求めておく（色の濃淡計算用）
+    @max_count = @pain_counts.values.max || 1
+  end
+
   private
 
   def daily_log_params
