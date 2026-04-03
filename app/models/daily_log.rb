@@ -58,28 +58,45 @@ class DailyLog < ApplicationRecord
   end
 
   def self.to_csv
-    # 出力したいメイン項目のカラム
+    # 出力したい基本項目
     main_columns = %w[date condition pain_vas fatigue_vas stiffness_duration memo]
     
     CSV.generate(headers: true) do |csv|
-      # ヘッダーに「体温記録」を追加
+      # ヘッダー作成
       header = main_columns.map { |col| I18n.t("activerecord.attributes.daily_log.#{col}", default: col.humanize) }
       header << "体温記録(時間:度)"
+      header << "痛む部位(シェーマ)" # ✅ 項目を追加
       csv << header
       
       all.order(date: :desc).each do |log|
-        # その日の体温記録をすべて取得し、「12:00(36.5)」のような形式の配列にする
+        # 1. 体温データの整形
         temp_strings = log.temperature_logs.order(:measured_at).map do |t|
           time = t.measured_at&.in_time_zone('Tokyo')&.strftime("%H:%M") || "--:--"
           "#{time}(#{t.value}℃)"
         end
-        
-        # 配列を「 / 」で区切って1つの文字列にする
         temp_display = temp_strings.join(" / ")
+
+        # ✅ 2. 痛む部位 (pain_parts) の整形
+        # pain_parts は JSON 形式なので、そこから部位名を取り出します
+        # データの入り方（[{"part": "右肩"}, ...] など）に合わせて調整が必要ですが、
+        # 一般的な実装を想定したコードです：
+        pain_parts_display = if log.pain_parts.present?
+                               # JSON内の各要素から名前（仮に "name" や "part"）を取り出す
+                               # ※もし単純な配列 ["右肩", "左膝"] なら log.pain_parts.join(", ") でOK
+                               begin
+                                 parts = log.pain_parts
+                                 parts.is_a?(Array) ? parts.join("、") : parts
+                               rescue
+                                 "データ形式エラー"
+                               end
+                             else
+                               "なし"
+                             end
         
         # 行データを作成
         row = main_columns.map { |col| log.send(col) }
-        row << temp_display # 最後に体温データを追加
+        row << temp_display      # 体温
+        row << pain_parts_display # ✅ 痛む部位
         
         csv << row
       end
