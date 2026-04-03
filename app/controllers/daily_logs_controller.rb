@@ -70,6 +70,32 @@ class DailyLogsController < ApplicationController
    end
   end
 
+  def analysis
+    @start_date = params[:start_date].presence || 30.days.ago.to_date.to_s
+    @end_date = params[:end_date].presence || Date.today.to_s
+
+    @logs = current_user.daily_logs.where(date: @start_date..@end_date)
+  
+    @pain_counts = Hash.new(0)
+  
+    @logs.each do |log|
+      # pain_partsを安全に読み込む
+      parts = log.pain_parts
+      parts = JSON.parse(parts) if parts.is_a?(String)
+    
+      parts&.each { |part| @pain_counts[part] += 1 }
+    end
+
+    # 集計した結果、一つでも部位が選ばれていれば true
+    @has_pain_data = @pain_counts.any?
+
+    if @has_pain_data
+      @max_count = @pain_counts.values.max
+    else
+      @max_count = 1
+    end
+  end
+
   private
 
   def daily_log_params
