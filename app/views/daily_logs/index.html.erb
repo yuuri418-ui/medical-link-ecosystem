@@ -62,6 +62,34 @@
       </div>
     </div>
 
+    <% # ✅ カレンダーの表示セクション %>
+  <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-10">
+    <%= month_calendar(events: @daily_logs, attribute: :date) do |date, logs| %>
+      <div class="h-16 flex flex-col items-center justify-start">
+        <div class="text-xs text-gray-400 mb-1"><%= date.day %></div>
+        
+        <% # その日のログが存在する場合 %>
+        <% if logs.any? %>
+          <% log = logs.first %>
+          <%= link_to daily_log_path(log), class: "no-underline group" do %>
+            <div class="w-full flex flex-col items-center">
+              <% # 体調に合わせたドットを表示（例：conditionが4以上なら緑、それ以外は黄色など） %>
+              <div class="w-2 h-2 rounded-full <%= log.condition.to_i >= 4 ? 'bg-green-400' : 'bg-yellow-400' %> mb-1"></div>
+              
+              <% # 簡易的なVAS（痛み）表示 %>
+              <span class="text-[8px] font-bold text-red-500">P:<%= log.pain_vas %></span>
+            </div>
+          <% end %>
+        <% else %>
+          <% # 記録がない日は「新規登録」へのリンクにしても便利です %>
+          <%= link_to new_daily_log_path(date: date), class: "text-[10px] text-gray-200 hover:text-blue-300" do %>
+            +
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
     <%# --- ログ一覧 --- %>
     <div class="space-y-4">
       <% @daily_logs.each do |log| %>
