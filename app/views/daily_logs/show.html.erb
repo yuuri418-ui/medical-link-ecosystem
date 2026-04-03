@@ -102,14 +102,15 @@
     <div class="flex-1">
       <p class="text-xs font-bold text-gray-400 mb-3 uppercase tracking-widest">Selected Areas</p>
       
+      <% parts_array_jp = @daily_log.pain_parts_jp %>
+
       <div class="flex flex-wrap gap-2">
         <% if parts_array.any? %>
-          <% parts_array.each do |part| %>
+          <% parts_array_jp.each do |part_name| %>
             <div class="flex items-center bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm transition-all hover:border-red-200">
               <div class="w-2 h-2 rounded-full bg-red-400 mr-2"></div>
               <span class="text-sm font-medium text-gray-700">
-                <% # 部位名が英語（left_hand等）なら、日本語に変換するロジックをここに置くとより親切です %>
-                <%= part %>
+                <%= part_name %>
               </span>
             </div>
           <% end %>
