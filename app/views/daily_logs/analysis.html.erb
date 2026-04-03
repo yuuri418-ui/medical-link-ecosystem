@@ -7,38 +7,52 @@
     <span class="mr-2">📊</span> 痛みの分析ヒートマップ
   </h1>
 
-  <% # 期間指定フォーム %>
-  <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-8">
-    <%= form_with url: analysis_daily_logs_path, method: :get, local: true, class: "space-y-4" do |f| %>
-      <div class="grid grid-cols-2 gap-4">
+  <% # 📅 期間指定フォーム %>
+  <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100 mb-8">
+    <%= form_with url: analysis_daily_logs_path, method: :get, local: true do |f| %>
+      <div class="grid grid-cols-2 gap-4 mb-6">
         <div>
-          <%= f.label :start_date, "開始日", class: "text-xs font-bold text-gray-500 mb-1 block" %>
+          <%= f.label :start_date, "開始日", class: "text-[10px] font-bold text-gray-400 mb-1 block uppercase tracking-wider" %>
           <%= f.date_field :start_date, value: @start_date, class: "w-full rounded-xl border-gray-200 text-sm" %>
         </div>
         <div>
-          <%= f.label :end_date, "終了日", class: "text-xs font-bold text-gray-500 mb-1 block" %>
+          <%= f.label :end_date, "終了日", class: "text-[10px] font-bold text-gray-400 mb-1 block uppercase tracking-wider" %>
           <%= f.date_field :end_date, value: @end_date, class: "w-full rounded-xl border-gray-200 text-sm" %>
         </div>
       </div>
-      <%= f.submit "分析期間を更新", class: "w-full py-3 bg-gray-800 text-white font-bold rounded-xl text-sm" %>
+      
+      <% # ✅ 物理的にスタイルを固定したボタン %>
+      <button type="submit" 
+              style="background-color: #1f2937; color: white; width: 100%; padding: 12px; border-radius: 16px; border: none; font-weight: bold; cursor: pointer; display: block; text-align: center;">
+        分析期間を更新
+      </button>
     <% end %>
   </div>
 
-  <% # ヒートマップ表示エリア %>
+  <% # 👤 ヒートマップ表示エリア %>
   <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center">
-    <div class="w-64 mb-8">
-      <% # 入力用と同じSVGを再利用（ただしactionは無し） %>
-      <%= render 'shared/body_schema_display' %>
-    </div>
-
-    <% # 凡例 %>
-    <div class="w-full pt-6 border-t border-gray-50">
-      <h3 class="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider text-center">痛みの頻度（回数）</h3>
-      <div class="flex justify-between items-center px-4">
-        <div class="flex items-center"><div class="w-3 h-3 bg-gray-200 rounded-full mr-2"></div><span class="text-[10px] text-gray-500">0回</span></div>
-        <div class="flex-1 h-1 mx-4 bg-gradient-to-r from-red-100 to-red-600 rounded-full"></div>
-        <div class="flex items-center"><div class="w-3 h-3 bg-red-600 rounded-full mr-2"></div><span class="text-[10px] text-gray-500">最多（<%= @max_count %>回）</span></div>
+    <% if @has_data %>
+      <div class="w-64 mb-8">
+        <%= render 'shared/body_schema_display' %>
       </div>
-    </div>
+      
+      <div class="w-full pt-6 border-t border-gray-50">
+        <h3 class="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider text-center">痛みの頻度（回数）</h3>
+        <div class="flex justify-between items-center px-4">
+          <div class="flex items-center"><div class="w-3 h-3 bg-gray-200 rounded-full mr-2"></div><span class="text-[10px] text-gray-500">0回</span></div>
+          <div class="flex-1 h-1 mx-4 bg-gradient-to-r from-red-100 to-red-600 rounded-full"></div>
+          <div class="flex items-center"><div class="w-3 h-3 bg-red-600 rounded-full mr-2"></div><span class="text-[10px] text-gray-500">最多（<%= @max_count %>回）</span></div>
+        </div>
+      </div>
+    <% else %>
+      <div class="py-12 flex flex-col items-center text-center">
+        <span class="text-4xl mb-4">📝</span>
+        <h3 class="text-gray-700 font-bold mb-2">記録が見つかりませんでした</h3>
+        <p class="text-xs text-gray-400 leading-relaxed px-6">
+          選択された期間（<%= @start_date %> 〜 <%= @end_date %>）には記録がありません。<br>
+          別の日付を選んでみてください。
+        </p>
+      </div>
+    <% end %>
   </div>
 </div>
