@@ -1,136 +1,45 @@
-<div class="max-w-4xl mx-auto py-8 px-4">
-  <div class="flex justify-between items-center mb-8">
-    <h1 class="text-2xl font-bold text-gray-800 flex items-center">
-      📝 体調ログ履歴
+<div class="max-w-5xl mx-auto py-10 px-6">
+  <div class="flex items-center justify-between mb-10">
+    <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight flex items-center">
+      <span class="mr-3 p-2 bg-white rounded-2xl shadow-sm border border-gray-100">📅</span> 
+      体調ログ履歴
     </h1>
-    <%= link_to "新しく記録する", new_daily_log_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold shadow-md transition" %>
-  </div>
-
-  <%# --- グラフセクション --- %>
-  <div class="max-w-5xl mx-auto py-4">
-    <%# 📅 期間切り替えボタン：1ヶ月〜1年に変更 %>
-    <div class="flex justify-center space-x-2 mb-8 bg-gray-100 p-1 rounded-xl w-fit mx-auto">
-      <% [["1ヶ月", "1month"], ["3ヶ月", "3months"], ["6ヶ月", "6months"], ["1年", "1year"]].each do |label, p| %>
-        <%= link_to label, daily_logs_path(period: p), 
-          class: "px-6 py-2 rounded-lg text-sm font-bold transition #{@period == p ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}" %>
-      <% end %>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-      <%# 痛み・倦怠感のグラフ %>
-      <div class="bg-white p-6 rounded-3xl shadow-sm border border-blue-50">
-        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Pain & Fatigue / 痛み・倦怠感</h3>
-        <div class="h-64">
-          <%= line_chart [
-            { name: "痛み", data: @pain_data, color: "#2563eb" },
-            { name: "倦怠感", data: @fatigue_data, color: "#10b981" }
-          ], 
-          xtitle: "記録日",
-          ytitle: "VAS",
-          min: 0, max: 10, 
-          points: ["14days", "1month"].include?(@period), 
-          curve: true,
-          library: {
-            layout: { padding: { bottom: 30, left: 10, right: 10 } },
-            scales: {
-              x: { ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 45 } },
-              y: { ticks: { font: { size: 10 } } }
-            }
-          } %>
-        </div>
-      </div>
-
-      <%# 体温のグラフ %>
-      <div class="bg-white p-6 rounded-3xl shadow-sm border border-orange-50">
-        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Temperature / 体温推移</h3>
-        <div class="h-64">
-          <%= line_chart @temp_data, 
-              xtitle: "測定日",
-              color: "#f97316", 
-              min: 35, max: 39, 
-              points: ["14days", "1month"].include?(@period), 
-              curve: true, 
-              suffix: "°C",
-              library: {
-                layout: { padding: { bottom: 30, left: 10, right: 10 } },
-                scales: {
-                  x: { ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 45 } },
-                  y: { ticks: { font: { size: 10 } } }
-                }
-              } %>
-        </div>
-      </div>
-    </div>
-
-    <% # ✅ カレンダーの表示セクション %>
-  <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-10">
-    <%= month_calendar(events: @daily_logs, attribute: :date) do |date, logs| %>
-      <div class="h-16 flex flex-col items-center justify-start">
-        <div class="text-xs text-gray-400 mb-1"><%= date.day %></div>
-        
-        <% # その日のログが存在する場合 %>
-        <% if logs.any? %>
-          <% log = logs.first %>
-          <%= link_to daily_log_path(log), class: "no-underline group" do %>
-            <div class="w-full flex flex-col items-center">
-              <% # 体調に合わせたドットを表示（例：conditionが4以上なら緑、それ以外は黄色など） %>
-              <div class="w-2 h-2 rounded-full <%= log.condition.to_i >= 4 ? 'bg-green-400' : 'bg-yellow-400' %> mb-1"></div>
-              
-              <% # 簡易的なVAS（痛み）表示 %>
-              <span class="text-[8px] font-bold text-red-500">P:<%= log.pain_vas %></span>
-            </div>
-          <% end %>
-        <% else %>
-          <% # 記録がない日は「新規登録」へのリンクにしても便利です %>
-          <%= link_to new_daily_log_path(date: date), class: "text-[10px] text-gray-200 hover:text-blue-300" do %>
-            +
-          <% end %>
-        <% end %>
-      </div>
+    
+    <% # 新規作成ボタンを右上に配置 %>
+    <%= link_to new_daily_log_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-blue-100 transition-all flex items-center" do %>
+      <span class="mr-2">+</span> 記録する
     <% end %>
   </div>
 
-    <%# --- ログ一覧 --- %>
-    <div class="space-y-4">
-      <% @daily_logs.each do |log| %>
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition">
-          <div class="flex items-center space-x-4">
-            <div class="text-3xl">
-              <%= {1=>"😫", 2=>"🙁", 3=>"😐", 4=>"🙂", 5=>"😆"}[log.condition] %>
-            </div>
-            
-            <div>
-              <div class="text-sm text-gray-500 font-medium"><%= log.date.strftime("%Y年%m月%d日") %></div>
-              <div class="flex space-x-3 mt-1 flex-wrap gap-y-2">
-                <span class="text-xs bg-red-50 text-red-600 px-2 py-1 rounded-full font-bold">痛み: <%= log.pain_vas %></span>
-                <span class="text-xs bg-yellow-50 text-yellow-600 px-2 py-1 rounded-full font-bold">倦怠感: <%= log.fatigue_vas %></span>
-                <% if log.stiffness_duration.present? && log.stiffness_duration > 0 %>
-                  <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full font-bold">こわばり: <%= log.stiffness_duration %>分</span>
-                <% end %>
-                <% if log.temperature_logs.any? %>
-                  <% log.temperature_logs.each do |temp| %>
-                    <span class="text-xs bg-orange-50 text-orange-600 px-2 py-1 rounded-full font-bold">
-                      🌡️ <%= temp.value %>°C 
-                      <span class="text-[10px] font-normal opacity-70">(<%= temp.measured_at&.strftime("%H:%M") %>)</span>
-                    </span>
-                  <% end %>
-                <% end %>
-              </div>
-            </div>
-          </div>
+  <div class="bg-white p-6 rounded-[32px] shadow-sm border border-gray-100">
+  <%= month_calendar(events: @daily_logs, attribute: :date) do |date, logs| %>
+    <div class="flex flex-col h-full">
+      <% # 日付の数字 %>
+      <div class="text-xs font-bold <%= date.today? ? 'text-blue-600' : 'text-gray-400' %>">
+        <%= date.day %>
+      </div>
 
-          <div class="flex items-center space-x-2">
-            <%= link_to "詳細", daily_log_path(log), class: "text-sm text-gray-400 hover:text-blue-600 px-2 py-1" %>
-            <%= link_to "編集", edit_daily_log_path(log), class: "text-sm text-gray-400 hover:text-green-600 px-2 py-1" %>
-          </div>
-        </div>
-      <% end %>
-
-      <% if @daily_logs.empty? %>
-        <div class="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
-          <p class="text-gray-400">まだ記録がありません。今日の体調を記録してみましょう！</p>
-        </div>
-      <% end %>
+      <div class="mt-1 flex-grow flex flex-col justify-center items-center">
+        <% if logs.any? %>
+          <% log = logs.first %>
+          <%= link_to daily_log_path(log), class: "no-underline w-full text-center" do %>
+            <% # 痛みと倦怠感の小さなバー %>
+            <div class="flex gap-1 justify-center mb-1">
+              <div class="w-1/3 h-1 bg-red-400 rounded-full"></div>
+              <div class="w-1/3 h-1 bg-purple-400 rounded-full"></div>
+            </div>
+            <% # 数値の表示 %>
+            <div class="text-[10px] font-black text-gray-700 leading-tight">
+              P<%= log.pain_vas %> F<%= log.fatigue_vas %>
+            </div>
+          <% end %>
+        <% else %>
+          <%= link_to new_daily_log_path(date: date), class: "text-gray-200 no-underline hover:text-blue-400" do %>
+            <span class="text-lg">+</span>
+          <% end %>
+        <% end %>
+      </div>
     </div>
-  </div>
+  <% end %>
+</div>
 </div>
