@@ -2,7 +2,7 @@ class DailyLogsController < ApplicationController
   before_action :authenticate_user!
 
   def new
-    @daily_log = current_user.daily_logs.build
+    @daily_log = current_user.daily_logs.build(date: params[:date] || Date.today)
     @daily_log.temperature_logs.build 
 
     current_user.latest_prescribed_medicines.each do |medicine|

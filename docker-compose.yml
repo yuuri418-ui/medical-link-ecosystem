@@ -20,5 +20,6 @@ services:
     environment:
       - BUNDLE_DEPLOYMENT=0
       - RAILS_ENV=development
+      - TZ=Asia/Tokyo
     stdin_open: true
     tty: true
