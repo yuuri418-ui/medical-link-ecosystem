@@ -1,15 +1,35 @@
+
 <div class="max-w-5xl mx-auto py-10 px-6">
-  <div class="flex items-center justify-between mb-10">
-    <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight flex items-center">
-      <span class="mr-3 p-2 bg-white rounded-2xl shadow-sm border border-gray-100">📅</span> 
-      体調記録カレンダー
-    </h1>
+  <%# 1. ヘッダー全体のコンテナ：w-full で横幅を使い切ることを明示 %>
+  <div class="w-full flex flex-row items-center justify-between mb-10">
     
-    <%= link_to new_daily_log_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-blue-100 transition-all flex items-center" do %>
-      <span class="mr-2">+</span> 記録する
-    <% end %>
+    <%# 2. 左側：タイトル %>
+    <div class="flex-shrink-0">
+      <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight flex items-center">
+        <span class="mr-3 p-2 bg-white rounded-2xl shadow-sm border border-gray-100">📅</span> 
+        体調記録カレンダー
+      </h1>
+    </div>
+    
+    <%# 3. 右側：ボタンの塊（ml-auto で右側に強制的に押し出す） %>
+    <div class="flex items-center gap-3 ml-auto">
+      <%# CSV出力ボタン %>
+      <%= link_to daily_logs_path(format: :csv), class: "group bg-white hover:bg-green-50 text-green-600 border border-green-200 px-5 py-3 rounded-2xl font-bold shadow-sm transition-all flex items-center" do %>
+        <span class="mr-2 text-lg group-hover:rotate-12 transition-transform">📊</span>
+        <span class="text-sm">データ出力</span>
+      <% end %>
+
+      <%# 記録するボタン %>
+      <%= link_to new_daily_log_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-blue-100 transition-all flex items-center" do %>
+        <span class="mr-2">+</span> 記録する
+      <% end %>
+    </div>
   </div>
 
+  <% # --- カレンダー部分はそのまま --- %>
+
+
+  <%# --- 以下、カレンダー部分 --- %>
   <div class="bg-white p-6 rounded-[32px] shadow-sm border border-gray-100">
     <%= month_calendar(events: @daily_logs, attribute: :date, title: ->(date) { "#{date.year}年 #{date.month}月" } ) do |date, logs| %>
       
