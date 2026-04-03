@@ -74,14 +74,17 @@ class DailyLogsController < ApplicationController
     @start_date = params[:start_date].presence || 30.days.ago.to_date.to_s
     @end_date = params[:end_date].presence || Date.today.to_s
 
-    @logs = current_user.daily_logs.where(date: @start_date..@end_date)
-
-    # --- 3. グラフ用データの作成 ---
+    @logs = current_user.daily_logs.includes(:temperature_logs).where(date: @start_date..@end_date).order(:date)
+  
     @pain_vas_data = @logs.map { |log| [log.date, log.pain_vas] }
     @fatigue_vas_data = @logs.map { |log| [log.date, log.fatigue_vas] }
-
-    @temperature_data = @logs.map { |log| [log.date, log.temperature] }
   
+    # ✅ 体温データの取得方法を修正
+    @temperature_data = @logs.map { |log| 
+    # temperature_logsの中から、measurementカラムの最大値を取得
+      max_temp = log.temperature_logs.maximum(:value) || 0
+      [log.date, max_temp] 
+    }
     @pain_counts = Hash.new(0)
   
     @logs.each do |log|
