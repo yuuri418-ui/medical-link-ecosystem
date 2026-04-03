@@ -25,7 +25,9 @@ Rails.application.routes.draw do
   root "home#index"
 
   resources :daily_logs do
-    get :analysis, on: :collection
+    collection do
+      get :analysis
+    end
   end
 
   resources :visit_logs
