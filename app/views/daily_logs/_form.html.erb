@@ -1,16 +1,13 @@
-
 <%= form_with(model: daily_log, local: true, class: "p-6 space-y-8") do |f| %>
   
-  <%# 日付選択 %>
-  <div>
+  <%# 1. 日付選択 %>
+  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
     <%= f.label :date, "記録日", class: "block text-sm font-bold text-gray-700 mb-2" %>
     <%= f.date_field :date, class: "w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm" %>
   </div>
 
-  <hr class="border-gray-100">
-
-  <%# 総合体調 (1-5) %>
-  <div>
+  <%# 2. 総合体調 (1-5) %>
+  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
     <%= f.label :condition, "総合的な体調", class: "block text-sm font-bold text-gray-700 mb-4" %>
     <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
       <% [["😫", 1], ["🙁", 2], ["😐", 3], ["🙂", 4], ["😆", 5]].each do |label, value| %>
@@ -25,35 +22,98 @@
     </div>
   </div>
 
-  <%# 体温入力セクション %>
-  <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
-    <h2 class="text-sm font-bold text-blue-800 mb-3 flex items-center">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-      </svg>
-      体温の記録
-    </h2>
-
-    <%= f.fields_for :temperature_logs do |t_form| %>
-      <div class="flex items-center space-x-4 mb-2">
-        <div class="flex-1">
-          <%= t_form.label :value, "体温 (°C)", class: "block text-xs text-gray-500 mb-1" %>
-          <%= t_form.number_field :value, step: 0.1, class: "w-full rounded-lg border-gray-300 focus:ring-blue-500 shadow-sm", placeholder: "36.5" %>
-        </div>
-        <div class="flex-1">
-          <%= t_form.label :measured_at, "計測時刻", class: "block text-xs text-gray-500 mb-1" %>
-          <%= t_form.time_field :measured_at, class: "w-full rounded-lg border-gray-300 focus:ring-blue-500 shadow-sm" %>
-        </div>
+  <%# 4. VAS 指標 (痛み・倦怠感) %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+      <div class="flex justify-between mb-2">
+        <%= f.label :pain_vas, "痛みの強さ (VAS)", class: "text-sm font-bold text-gray-700" %>
+        <span id="pain_value" class="text-blue-600 font-bold"><%= f.object.pain_vas || 0 %></span>
       </div>
-    <% end %>
+      <%= f.range_field :pain_vas, min: 0, max: 10, class: "w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600", oninput: "document.getElementById('pain_value').innerText = this.value" %>
+      <div class="flex justify-between text-[10px] text-gray-400 mt-2 font-bold"><span>なし</span><span>耐えられない</span></div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+      <div class="flex justify-between mb-2">
+        <%= f.label :fatigue_vas, "倦怠感 (VAS)", class: "text-sm font-bold text-gray-700" %>
+        <span id="fatigue_value" class="text-green-600 font-bold"><%= f.object.fatigue_vas || 0 %></span>
+      </div>
+      <%= f.range_field :fatigue_vas, min: 0, max: 10, class: "w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600", oninput: "document.getElementById('fatigue_value').innerText = this.value" %>
+      <div class="flex justify-between text-[10px] text-gray-400 mt-2 font-bold"><span>なし</span><span>非常に強い</span></div>
+    </div>
   </div>
 
-  <%# 服薬記録セクション %>
-  <div class="bg-green-50 p-6 rounded-2xl border border-green-100 mt-6">
-    <h2 class="text-sm font-bold text-green-800 mb-4 flex items-center">
-      💊 今日の服薬チェック
-    </h2>
+<%# --- 全身シェーマ セクション  --- %>
+<div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden" data-controller="body-schema">
+  <details class="group">
+    <%# クリックエリア（ヘッダー） %>
+    <summary class="flex items-center justify-between p-5 cursor-pointer list-none hover:bg-gray-50 transition-colors">
+      <div class="flex items-center space-x-3">
+        <div class="bg-blue-100 p-2 rounded-xl">
+          <span class="text-lg">📍</span>
+        </div>
+        <div>
+          <span class="block font-bold text-gray-700 text-sm md:text-base">痛み・違和感のある部位</span>
+          <span class="text-[10px] text-gray-400 font-medium">タップして頭痛や関節痛を記録</span>
+        </div>
+      </div>
+      <div class="text-gray-300 transition-transform duration-300 group-open:rotate-180">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+      </div>
+    </summary>
 
+    <%# 折りたたみの中身 %>
+    <div class="px-4 pb-4 pt-8">
+      <div class="flex justify-center mb-6">
+        <%= render 'shared/body_schema' %>
+      </div>
+
+      <%= f.hidden_field :pain_parts, data: { body_schema_target: "input" } %>
+
+      <%# 使い方のヒント %>
+      <div class="bg-blue-50/50 rounded-2xl p-4 mx-auto max-w-[280px] mb-2">
+        <div class="flex items-start space-x-2">
+          <span class="text-blue-400 text-xs">💡</span>
+          <p class="text-[10px] text-blue-700 leading-relaxed font-medium">
+            赤い部分は「痛みあり」として保存されます。診察時にスマホを医師に見せることで、部位を正確に伝えられます。
+          </p>
+        </div>
+      </div>
+    </div>
+  </details>
+</div>
+
+
+  <%# 5. 朝のこわばり & 体温記録 %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+      <%= f.label :stiffness_duration, "朝のこわばりの時間", class: "block text-sm font-bold text-gray-700 mb-2" %>
+      <div class="relative">
+        <%= f.number_field :stiffness_duration, class: "w-full pl-3 pr-12 py-2 border-gray-300 rounded-lg focus:ring-blue-500 shadow-sm", placeholder: "0" %>
+        <span class="absolute right-3 top-2 text-gray-400 text-sm">分</span>
+      </div>
+    </div>
+
+    <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+      <h2 class="text-sm font-bold text-blue-800 mb-3 flex items-center">🌡️ 体温の記録</h2>
+      <%= f.fields_for :temperature_logs do |t_form| %>
+        <div class="flex items-center space-x-4">
+          <div class="flex-1">
+            <%= t_form.number_field :value, step: 0.1, class: "w-full rounded-lg border-gray-300 shadow-sm", placeholder: "36.5" %>
+          </div>
+          <div class="flex-1">
+            <%= t_form.time_field :measured_at, class: "w-full rounded-lg border-gray-300 shadow-sm" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# 6. 服薬記録セクション %>
+  <div class="bg-green-50 p-6 rounded-2xl border border-green-100">
+    <h2 class="text-sm font-bold text-green-800 mb-4 flex items-center">💊 今日の服薬チェック</h2>
     <div class="space-y-3">
       <%= f.fields_for :medication_logs do |m_form| %>
         <div class="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-green-50">
@@ -64,63 +124,33 @@
                 <%= m_form.object.medicine_name %>
                 <%= m_form.hidden_field :medicine_name %>
               </span>
-              <span class="text-xs text-gray-500">
-                <%= m_form.object.dosage %>
-                <%= m_form.hidden_field :dosage %>
-              </span>
+              <span class="text-xs text-gray-500"><%= m_form.object.dosage %><%= m_form.hidden_field :dosage %></span>
             </div>
           </div>
-
           <% if m_form.object.medicine_name.blank? %>
             <div class="flex space-x-2">
-              <%= m_form.text_field :medicine_name, placeholder: "その他の薬名", class: "text-xs rounded-lg border-gray-200" %>
+              <%= m_form.text_field :medicine_name, placeholder: "薬名", class: "text-xs rounded-lg border-gray-200" %>
               <%= m_form.text_field :dosage, placeholder: "用量", class: "text-xs w-20 rounded-lg border-gray-200" %>
             </div>
           <% end %>
-        </div> <%# ここがチェックボックス1つ分の div の終わり %>
+        </div>
       <% end %>
     </div>
   </div>
 
-  <%# VAS 指標 (痛み・倦怠感) %>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-    <div>
-      <div class="flex justify-between mb-2">
-        <%= f.label :pain_vas, "痛みの強さ (VAS)", class: "text-sm font-bold text-gray-700" %>
-        <span id="pain_value" class="text-blue-600 font-bold"><%= f.object.pain_vas || 0 %></span>
-      </div>
-      <%= f.range_field :pain_vas, min: 0, max: 10, class: "w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600", oninput: "document.getElementById('pain_value').innerText = this.value" %>
-      <div class="flex justify-between text-xs text-gray-400 mt-1"><span>なし</span><span>耐えられない</span></div>
-    </div>
 
-    <div>
-      <div class="flex justify-between mb-2">
-        <%= f.label :fatigue_vas, "倦怠感 (VAS)", class: "text-sm font-bold text-gray-700" %>
-        <span id="fatigue_value" class="text-blue-600 font-bold"><%= f.object.fatigue_vas || 0 %></span>
-      </div>
-      <%= f.range_field :fatigue_vas, min: 0, max: 10, class: "w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600", oninput: "document.getElementById('fatigue_value').innerText = this.value" %>
-      <div class="flex justify-between text-xs text-gray-400 mt-1"><span>なし</span><span>非常に強い</span></div>
-    </div>
-  </div>
 
-  <%# 朝のこわばり %>
-  <div>
-    <%= f.label :stiffness_duration, "朝のこわばりの時間 (分)", class: "block text-sm font-bold text-gray-700 mb-2" %>
-    <div class="relative">
-      <%= f.number_field :stiffness_duration, class: "w-full pl-3 pr-12 py-2 border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 shadow-sm", placeholder: "0" %>
-      <span class="absolute right-3 top-2 text-gray-400 text-sm">分</span>
-    </div>
-  </div>
-
-  <%# メモ %>
-  <div>
+  
+  <%# 7. メモ %>
+  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
     <%= f.label :memo, "自由記述メモ", class: "block text-sm font-bold text-gray-700 mb-2" %>
-    <%= f.text_area :memo, rows: 4, class: "w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 shadow-sm", placeholder: "気になったことなど" %>
+    <%= f.text_area :memo, rows: 4, class: "w-full border-gray-300 rounded-xl focus:ring-blue-500 shadow-sm", placeholder: "気になったことなど" %>
   </div>
 
-  <%# 保存ボタン %>
-  <div class="pt-4">
-    <%= f.submit button_text, class: "w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition duration-200 transform hover:-translate-y-0.5" %>
-    <%= link_to "キャンセル", daily_logs_path, class: "block text-center mt-4 text-sm text-gray-500 hover:text-gray-700" %>
+  <%# 8. 保存ボタン %>
+  <div class="pt-4 flex flex-col items-center">
+    <%= f.submit button_text, class: "w-full md:w-80 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg transition duration-200 transform hover:-translate-y-1" %>
+    <%= link_to "キャンセル", daily_logs_path, class: "mt-4 text-sm text-gray-500 hover:text-gray-700 font-medium" %>
   </div>
+
 <% end %>
