@@ -1,8 +1,11 @@
 <div class="max-w-md mx-auto py-10 px-6">
   <% # ヘッダー部分 %>
   <div class="text-center mb-10">
-    <h1 class="text-3xl font-extrabold text-gray-800 mb-2 tracking-tight">MyHealth Log</h1>
-    <p class="text-sm text-gray-400 font-medium">毎日の小さな変化を見逃さない</p>
+    <p class="text-xs font-bold text-blue-500 mb-1 tracking-widest uppercase">おかえりなさい</p>
+    <h1 class="text-3xl font-extrabold text-gray-800 mb-2 tracking-tight">
+      <%= current_user.name %> さん
+    </h1>
+    <p class="text-sm text-gray-400 font-medium">今日の体調はいかがですか？</p>
   </div>
 
   <div class="space-y-6">
@@ -37,6 +40,17 @@
           <span style="display: block; color: #9ca3af; font-size: 12px; margin-top: 4px;">これまでの記録を振り返る</span>
         </div>
       </div>
+    <% end %>
+  </div>
+
+  <div class="mt-12 flex justify-center">
+    <%= link_to destroy_user_session_path, 
+                data: { turbo_method: :delete }, 
+                class: "flex items-center space-x-2 text-gray-400 hover:text-red-500 transition-colors" do %>
+      <span class="text-sm font-medium">ログアウト</span>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+      </svg>
     <% end %>
   </div>
 
