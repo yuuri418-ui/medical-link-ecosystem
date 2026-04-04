@@ -90,38 +90,60 @@ class DailyLogsController < ApplicationController
   end
 
   def analysis
-    @start_date = params[:start_date].presence || 30.days.ago.to_date.to_s
-    @end_date = params[:end_date].presence || Date.today.to_s
+  # 1. 期間の設定（既存のロジックを維持）
+  @start_date = params[:start_date].presence || 30.days.ago.to_date.to_s
+  @end_date = params[:end_date].presence || Date.today.to_s
 
-    @logs = current_user.daily_logs.includes(:temperature_logs).where(date: @start_date..@end_date).order(:date)
+  # 2. データの取得（includesでN+1問題を防止）
+  @logs = current_user.daily_logs
+                      .includes(:temperature_logs, :medication_logs)
+                      .where(date: @start_date..@end_date)
+                      .order(:date)
+
+  # --- 既存のグラフ・シェーマ用データ作成 (HTML表示に必要) ---
+  @pain_vas_data = @logs.map { |log| [log.date, log.pain_vas] }
+  @fatigue_vas_data = @logs.map { |log| [log.date, log.fatigue_vas] }
   
-    @pain_vas_data = @logs.map { |log| [log.date, log.pain_vas] }
-    @fatigue_vas_data = @logs.map { |log| [log.date, log.fatigue_vas] }
-  
-    # ✅ 体温データの取得方法を修正
-    @temperature_data = @logs.map { |log| 
-    # temperature_logsの中から、measurementカラムの最大値を取得
-      max_temp = log.temperature_logs.maximum(:value) || 0
-      [log.date, max_temp] 
-    }
-    @pain_counts = Hash.new(0)
-  
-    @logs.each do |log|
-      # pain_partsを安全に読み込む
-      parts = log.pain_parts
-      parts = JSON.parse(parts) if parts.is_a?(String)
+  @temperature_data = @logs.map { |log| 
+    max_temp = log.temperature_logs.maximum(:value) || 0
+    [log.date, max_temp] 
+  }
+
+  @pain_counts = Hash.new(0)
+  @logs.each do |log|
+    parts = log.pain_parts
+    parts = JSON.parse(parts) if parts.is_a?(String)
+    parts&.each { |part| @pain_counts[part] += 1 }
+  end
+
+  @has_pain_data = @pain_counts.any?
+  @max_count = @has_pain_data ? @pain_counts.values.max : 1
+  # --------------------------------------------------------
+
+  # 3. 出力形式（フォーマット）ごとの処理
+  respond_to do |format|
+    format.html # 以前通りの分析画面を表示
     
-      parts&.each { |part| @pain_counts[part] += 1 }
+    # ✅ CSV出力：現在の絞り込み条件（@logs）をそのまま使う
+    format.csv do
+      send_data render_to_string, 
+                filename: "health_log_#{@start_date}_to_#{@end_date}.csv", 
+                type: :csv
     end
 
-    # 集計した結果、一つでも部位が選ばれていれば true
-    @has_pain_data = @pain_counts.any?
-
-    if @has_pain_data
-      @max_count = @pain_counts.values.max
-    else
-      @max_count = 1
+    # ✅ PDF出力：先に作成した report テンプレートを使用
+    format.pdf do
+      # レポート内では降順（新しい順）の方が見やすいため、PDF用に並び替え
+      @daily_logs = @logs.reverse_order 
+      
+      render pdf: "summary_report_#{@start_date}",
+             layout: 'pdf',
+             template: 'daily_logs/report',
+             encoding: 'UTF-8',
+             show_as_html: params[:debug].present?
     end
+  end
+end
   end
 
   private
