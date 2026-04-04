@@ -1,0 +1,55 @@
+<div class="container mx-auto">
+  <div class="border-b-2 border-gray-800 pb-4 mb-8 flex justify-between items-end">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">体調管理サマリーレポート</h1>
+      <p class="text-gray-600">出力日: <%= Date.today.strftime('%Y年%m月%d日') %></p>
+    </div>
+    <div class="text-right">
+      <p class="text-lg">患者ID: <span class="font-mono font-bold"><%= current_user.patient_id %></span></p>
+      <p class="text-lg">氏名: <span class="font-bold"><%= current_user.name %></span> 様 (<%= current_user.age %>歳)</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4 mb-8">
+    <div class="border p-4 rounded bg-gray-50 text-center">
+      <p class="text-sm text-gray-500">記録日数</p>
+      <p class="text-2xl font-bold"><%= @daily_logs.count %> 日</p>
+    </div>
+    <div class="border p-4 rounded bg-gray-50 text-center">
+      <p class="text-sm text-gray-500">平均痛み(VAS)</p>
+      <p class="text-2xl font-bold text-red-600"><%= @daily_logs.average(:pain_vas)&.round(1) || 0 %></p>
+    </div>
+    <div class="border p-4 rounded bg-gray-50 text-center">
+      <p class="text-sm text-gray-500">服薬遵守率</p>
+      <%# 服薬率は少し計算が複雑なので後ほどロジックを組めます %>
+      <p class="text-2xl font-bold text-blue-600">-- %</p>
+    </div>
+  </div>
+
+  <table class="min-w-full border-collapse border border-gray-300 text-sm">
+    <thead>
+      <tr class="bg-gray-100">
+        <th class="border border-gray-300 p-2">日付</th>
+        <th class="border border-gray-300 p-2">最高体温</th>
+        <th class="border border-gray-300 p-2">痛み/倦怠感</th>
+        <th class="border border-gray-300 p-2">服用した薬(英)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @daily_logs.each do |log| %>
+        <tr>
+          <td class="border border-gray-300 p-2 text-center"><%= log.date.strftime('%m/%d') %></td>
+          <td class="border border-gray-300 p-2 text-center"><%= log.temperature_logs.maximum(:value) %>℃</td>
+          <td class="border border-gray-300 p-2 text-center">
+            V:<%= log.pain_vas %> / F:<%= log.fatigue_vas %>
+          </td>
+          <td class="border border-gray-300 p-2">
+            <span class="text-xs text-gray-700">
+              <%= log.medication_logs.where(is_taken: true).map(&:english_name).compact.reject(&:empty?).join(", ") %>
+            </span>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

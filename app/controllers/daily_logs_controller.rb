@@ -53,8 +53,10 @@ class DailyLogsController < ApplicationController
         render pdf: "health_report_#{Date.today}",
                layout: 'pdf',
                template: 'daily_logs/report',
+               # 「HTML形式のテンプレートを使ってね」と念押しします
+               formats: [:html], 
+               # --------------------------------------------------
                encoding: 'UTF-8',
-               # debugモードを有効にしておくと、ブラウザで見れて開発が楽です
                show_as_html: params[:debug].present?
       end
     end
