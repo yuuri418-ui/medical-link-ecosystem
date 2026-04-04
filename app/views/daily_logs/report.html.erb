@@ -34,24 +34,31 @@
       <div class="stat-value"><%= @daily_logs.count %> <span style="font-size: 9px; font-weight: normal; color: #999;">days</span></div>
     </div>
     
-    <div class="stat-box" style="border-left: 4px solid #ef4444;">
-      <div class="stat-title" style="color: #ef4444;">Avg Pain</div>
+    <div class="stat-box" style="border-left: 4px solid #3b82f6;">
+      <div class="stat-title" style="color: #3b82f6;">Avg Pain</div>
       <div class="stat-value text-red-600"><%= @daily_logs.average(:pain_vas)&.round(1) || "0.0" %></div>
     </div>
     
-    <div class="stat-box" style="border-left: 4px solid #3b82f6;">
-      <div class="stat-title" style="color: #3b82f6;">Avg Fatigue</div>
+    <div class="stat-box" style="border-left: 4px solid #8b5cf6;">
+      <div class="stat-title" style="color: #8b5cf6;">Avg Fatigue</div>
       <div class="stat-value text-blue-600"><%= @daily_logs.average(:fatigue_vas)&.round(1) || "0.0" %></div>
     </div>
     
-    <div class="stat-box" style="border-left: 4px solid #f97316; margin-right: 0;">
-      <div class="stat-title" style="color: #f97316;">Max Temp</div>
-      <div class="stat-value text-orange-600">
+    <div class="stat-box" style="border-left: 4px solid #10b981; margin-right: 0;">
+      <div class="stat-title" style="color: #10b981;">Max Temp</div>
+      <div class="stat-value text-green-600">
         <%= @daily_logs.joins(:temperature_logs).maximum('temperature_logs.value') || "--.-" %> 
         <span style="font-size: 10px; font-weight: bold;">℃</span>
       </div>
     </div>
     <div class="clear"></div>
+  </div>
+
+  <div style="width: 100%; margin-bottom: 25px; text-align: center; border: 1px solid #f1f5f9; padding: 15px 5px; border-radius: 12px; background-color: #fff;">
+    <p style="font-size: 9px; font-weight: bold; color: #64748b; margin-bottom: 10px; text-align: left; padding-left: 10px;">
+      📊 体調推移グラフ（痛み・倦怠感・最高体温）
+    </p>
+    <img src="<%= quick_chart_url(@daily_logs.reverse) %>" style="width: 100%; max-width: 580px; height: auto;">
   </div>
 
   <div class="table-container">
@@ -84,11 +91,11 @@
               <% end %>
             </td>
 
-            <td style="text-align: center; font-weight: bold; <%= 'background-color: #fee2e2; color: #b91c1c;' if log.pain_vas >= 7 %>">
+            <td style="text-align: center; font-weight: bold; <%= 'background-color: #eff6ff; color: #3b82f6;' if log.pain_vas >= 7 %>">
               <%= log.pain_vas %>
             </td>
 
-            <td style="text-align: center; font-weight: bold; <%= 'background-color: #eff6ff; color: #1d4ed8;' if log.fatigue_vas >= 7 %>">
+            <td style="text-align: center; font-weight: bold; <%= 'background-color: #faefff; color: #8b5cf6;' if log.fatigue_vas >= 7 %>">
               <%= log.fatigue_vas %>
             </td>
 
