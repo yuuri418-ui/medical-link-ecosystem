@@ -92,4 +92,8 @@ class DailyLog < ApplicationRecord
     end
   end
 end
+
+  def start_time
+    self.date
+  end
 end

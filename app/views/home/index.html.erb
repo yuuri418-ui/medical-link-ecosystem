@@ -1,9 +1,9 @@
 <div class="max-w-md mx-auto py-10 px-6">
+  <%# --- ヘッダー・挨拶セクション --- %>
   <div class="text-center mb-10">
     <p class="text-xs font-bold text-blue-500 mb-1 tracking-widest uppercase">こんにちは</p>
     
     <h1 class="text-3xl font-extrabold text-gray-800 mb-2 tracking-tight">
-      <% # ✅ current_user が存在する場合（ログイン中）だけ名前を表示 %>
       <% if current_user %>
         <%= current_user.name %> さん
       <% else %>
@@ -15,50 +15,50 @@
   </div>
 
   <div class="space-y-6">
-    <% # 1. 記録するカード %>
-    <%= link_to new_daily_log_path, class: "block no-underline" do %>
-      <div style="background-color: #ffffff; padding: 24px; border-radius: 24px; border: 1px solid #f3f4f6; shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); display: flex; items-center; gap: 16px;">
-        <div style="background-color: #eff6ff; padding: 12px; border-radius: 16px; font-size: 24px;">📝</div>
-        <div>
-          <span style="display: block; font-weight: bold; color: #1f2937; font-size: 16px;">体調を記録する</span>
-          <span style="display: block; color: #9ca3af; font-size: 12px; margin-top: 4px;">体温、服薬、痛みの部位を登録</span>
-        </div>
-      </div>
-    <% end %>
-
-    <% # 2. 分析するカード（ヒートマップ） %>
-    <%= link_to analysis_daily_logs_path, class: "block no-underline" do %>
-      <div style="background-color: #ffffff; padding: 24px; border-radius: 24px; border: 1px solid #f3f4f6; shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); display: flex; items-center; gap: 16px;">
-        <div style="background-color: #fef2f2; padding: 12px; border-radius: 16px; font-size: 24px;">📊</div>
-        <div>
-          <span style="display: block; font-weight: bold; color: #1f2937; font-size: 16px;">痛みを分析する</span>
-          <span style="display: block; color: #9ca3af; font-size: 12px; margin-top: 4px;">ヒートマップで傾向を確認</span>
-        </div>
-      </div>
-    <% end %>
-
-    <% # 3. 履歴を見るカード（一覧） %>
-    <%= link_to daily_logs_path, class: "block no-underline" do %>
-      <div style="background-color: #ffffff; padding: 24px; border-radius: 24px; border: 1px solid #f3f4f6; shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); display: flex; items-center; gap: 16px;">
+    <%# 1. 体調管理（カレンダー・履歴） %>
+    <%= link_to daily_logs_path, class: "block no-underline group" do %>
+      <div style="background-color: #ffffff; padding: 24px; border-radius: 24px; border: 1px solid #f3f4f6; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); display: flex; align-items: center; gap: 16px;">
         <div style="background-color: #f0fdf4; padding: 12px; border-radius: 16px; font-size: 24px;">📅</div>
         <div>
-          <span style="display: block; font-weight: bold; color: #1f2937; font-size: 16px;">過去の履歴</span>
-          <span style="display: block; color: #9ca3af; font-size: 12px; margin-top: 4px;">これまでの記録を振り返る</span>
+          <span style="display: block; font-weight: bold; color: #1f2937; font-size: 16px;">体調管理・カレンダー</span>
+          <span style="display: block; color: #9ca3af; font-size: 12px; margin-top: 4px;">日々の記録入力と履歴の確認</span>
+        </div>
+      </div>
+    <% end %>
+
+    <%# 2. 分析・レポート（PDF出力機能を明示） %>
+    <%= link_to analysis_daily_logs_path, class: "block no-underline group" do %>
+      <div style="background-color: #ffffff; padding: 24px; border-radius: 24px; border: 1px solid #f3f4f6; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); display: flex; align-items: center; gap: 16px;">
+        <div style="background-color: #fef2f2; padding: 12px; border-radius: 16px; font-size: 24px;">📊</div>
+        <div>
+          <span style="display: block; font-weight: bold; color: #1f2937; font-size: 16px;">データ分析・レポート</span>
+          <span style="display: block; color: #9ca3af; font-size: 12px; margin-top: 4px;">グラフ分析とPDF・CSV出力</span>
+        </div>
+      </div>
+    <% end %>
+
+    <%# 3. 受診記録 %>
+    <%= link_to visit_logs_path, class: "block no-underline group" do %>
+      <div style="background-color: #ffffff; padding: 24px; border-radius: 24px; border: 1px solid #f3f4f6; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); display: flex; align-items: center; gap: 16px;">
+        <div style="background-color: #eff6ff; padding: 12px; border-radius: 16px; font-size: 24px;">🏥</div>
+        <div>
+          <span style="display: block; font-weight: bold; color: #1f2937; font-size: 16px;">受診記録・検査結果</span>
+          <span style="display: block; color: #9ca3af; font-size: 12px; margin-top: 4px;">診察内容や医師の指示をメモ</span>
+        </div>
+      </div>
+    <% end %>
+
+    <%# 4. 今日の記録ボタン（他のカードと同じデザインに統一） %>
+    <%= link_to new_daily_log_path, class: "block no-underline group" do %>
+      <div style="background-color: #ffffff; padding: 24px; border-radius: 24px; border: 1px solid #f3f4f6; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); display: flex; align-items: center; gap: 16px;">
+        <div style="background-color: #f8fafc; padding: 12px; border-radius: 16px; font-size: 24px; border: 1px dashed #cbd5e1;">📝</div>
+        <div>
+          <span style="display: block; font-weight: bold; color: #1f2937; font-size: 16px;">今日の体調を記録する</span>
+          <span style="display: block; color: #9ca3af; font-size: 12px; margin-top: 4px;">今すぐ入力を始める</span>
         </div>
       </div>
     <% end %>
   </div>
 
-  <div class="mt-12 flex justify-center">
-    <%= link_to destroy_user_session_path, 
-                data: { "turbo-method": :delete }, 
-                class: "flex items-center space-x-2 text-gray-400 hover:text-red-500 transition-colors no-underline" do %>
-      <span class="text-sm font-medium">ログアウト</span>
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-      </svg>
-    <% end %>
-  </div>
-
-  
+ 
 </div>
