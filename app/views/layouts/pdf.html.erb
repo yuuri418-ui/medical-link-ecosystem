@@ -1,16 +1,55 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      body {
-        /* インストールした Noto Sans CJK JP を指定 */
-        font-family: "Noto Sans CJK JP", "sans-serif";
-      }
-    </style>
-  </head>
-  <body class="bg-white p-8">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: "Noto Sans CJK JP", "sans-serif";
+      font-size: 10px; /* 少し小さくして余裕を持たせます */
+      color: #333;
+      margin: 0;
+      padding: 20px; /* 紙面の余白 */
+    }
+
+    .container { width: 95%; margin: 0 auto; } /* 全体を少し内側に寄せます */
+
+    .header-container { width: 100%; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; overflow: hidden; }
+    .header-left { float: left; width: 55%; }
+    .header-right { float: right; width: 45%; text-align: right; line-height: 1.5; }
+
+    /* ✅ 4項目横並びの修正 */
+    .stat-container { width: 100%; margin-bottom: 20px; overflow: hidden; }
+    .stat-box {
+      float: left;
+      width: 23.5%; /* 4つ並ぶように幅を調整 */
+      margin-right: 1.5%;
+      padding: 10px 0;
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      text-align: center;
+      border-radius: 4px;
+      box-sizing: border-box; /* 枠線を含めた幅計算 */
+    }
+    .stat-box:last-child { margin-right: 0; }
+    .stat-title { font-size: 8px; font-weight: bold; color: #64748b; margin-bottom: 2px; }
+    .stat-value { font-size: 14px; font-weight: bold; }
+
+    table { width: 100%; border-collapse: collapse; margin-bottom: 25px; table-layout: fixed; }
+    th { background-color: #1f2937; color: white; padding: 6px; font-size: 9px; border: 1px solid #374151; }
+    td { border: 1px solid #d1d5db; padding: 6px; vertical-align: middle; word-wrap: break-word; }
+
+    .footer-container { width: 100%; border-top: 1px solid #d1d5db; padding-top: 15px; overflow: hidden; }
+    .notes-section { float: left; width: 60%; }
+    .signature-section { float: right; width: 35%; text-align: center; } /* 署名欄が切れないよう幅を調整 */
+    .notes-box { width: 100%; height: 80px; border: 1px solid #e5e7eb; background-color: #f9fafb; padding: 8px; color: #9ca3af; }
+    .signature-box { width: 100%; height: 80px; border: 1px solid #374151; margin-top: 5px; position: relative; box-sizing: border-box; }
+
+    .clear { clear: both; display: block; content: ""; }
+  </style>
+</head>
+<body>
+  <div class="container">
     <%= yield %>
-  </body>
+  </div>
+</body>
 </html>
