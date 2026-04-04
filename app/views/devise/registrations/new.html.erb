@@ -62,6 +62,11 @@
         </div>
       </div>
 
+      <div class="field">
+        <%= f.label :patient_id, "診察券番号（患者ID）(任意)" %><br />
+        <%= f.text_field :patient_id, placeholder: "例: 1234567" %>
+      </div>
+
       <div class="pt-4 border-t border-gray-100">
         <div>
           <%= f.label :email, "メールアドレス", class: "text-xs font-bold text-gray-500 uppercase" %>
