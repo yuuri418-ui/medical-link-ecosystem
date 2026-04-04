@@ -36,5 +36,17 @@ class User < ApplicationRecord
   def name
     "#{last_name} #{first_name}"
   end
+
+  def age
+    return "不明" if birthday.blank?
+    
+    # 現在の年月日(20260404)から生年月日(19950101)を引いて10000で割る
+    # これで誕生日前後を考慮した正確な年齢が算出できます
+    date_format = "%Y%m%d"
+    current_date = Time.zone.now.strftime(date_format).to_i
+    birth_date = birthday.strftime(date_format).to_i
+    
+    (current_date - birth_date) / 10000
+  end
 end
 
