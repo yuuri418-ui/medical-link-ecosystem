@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* PDF特有の改ページ制御などの微調整をここに書けます */
+      .page-break { display: block; page-break-before: always; }
+    </style>
+  </head>
+  <body class="bg-white p-8">
+    <%= yield %>
+  </body>
+</html>
