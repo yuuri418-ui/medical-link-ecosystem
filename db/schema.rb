@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_02_144551) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_04_021338) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -58,6 +58,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_02_144551) do
     t.boolean "is_taken"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "english_name"
     t.index ["daily_log_id"], name: "index_medication_logs_on_daily_log_id"
   end
 
