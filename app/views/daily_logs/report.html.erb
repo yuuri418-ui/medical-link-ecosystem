@@ -1,0 +1,131 @@
+<%# 性別の日本語変換ロジック %>
+<% 
+  gender_ja = case current_user.gender&.downcase
+             when 'male'   then '男性'
+             when 'female' then '女性'
+             when 'other'  then 'その他'
+             else current_user.gender || "ー"
+             end
+%>
+
+<div class="container">
+  
+  <div class="header-container">
+    <div class="header-left">
+      <h1 style="font-size: 24px; margin: 0; font-weight: bold; color: #111;">体調管理サマリーレポート</h1>
+      <p style="color: #666; font-size: 10px; margin: 5px 0 0; font-weight: bold; letter-spacing: 1px;">
+        DAILY HEALTH LOG SUMMARY REPORT
+      </p>
+    </div>
+    <div class="header-right">
+      <p style="color: #999; margin: 0 0 5px 0; font-size: 10px; font-weight: bold;">
+        出力日: <%= Date.today.strftime('%Y/%m/%d') %>
+      </p>
+      <p style="margin: 0;">診察券番号: <span style="font-size: 14px; font-weight: bold;"><%= current_user.patient_id.presence || "未登録" %></span></p>
+      <p style="margin: 2px 0;">氏名: <span style="font-size: 14px; font-weight: bold;"><%= current_user.name %></span> 様</p>
+      <p style="margin: 0; color: #444;">性別: <%= gender_ja %> / 年齢: <%= current_user.age %> 歳</p>
+    </div>
+    <div class="clear"></div>
+  </div>
+
+  <div class="stat-container">
+    <div class="stat-box">
+      <div class="stat-title">Records</div>
+      <div class="stat-value"><%= @daily_logs.count %> <span style="font-size: 9px; font-weight: normal; color: #999;">days</span></div>
+    </div>
+    
+    <div class="stat-box" style="border-left: 4px solid #ef4444;">
+      <div class="stat-title" style="color: #ef4444;">Avg Pain</div>
+      <div class="stat-value text-red-600"><%= @daily_logs.average(:pain_vas)&.round(1) || "0.0" %></div>
+    </div>
+    
+    <div class="stat-box" style="border-left: 4px solid #3b82f6;">
+      <div class="stat-title" style="color: #3b82f6;">Avg Fatigue</div>
+      <div class="stat-value text-blue-600"><%= @daily_logs.average(:fatigue_vas)&.round(1) || "0.0" %></div>
+    </div>
+    
+    <div class="stat-box" style="border-left: 4px solid #f97316; margin-right: 0;">
+      <div class="stat-title" style="color: #f97316;">Max Temp</div>
+      <div class="stat-value text-orange-600">
+        <%= @daily_logs.joins(:temperature_logs).maximum('temperature_logs.value') || "--.-" %> 
+        <span style="font-size: 10px; font-weight: bold;">℃</span>
+      </div>
+    </div>
+    <div class="clear"></div>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 8%;">日付</th>
+          <th style="width: 8%;">体温 (℃)</th>
+          <th style="width: 8%;">痛み</th>
+          <th style="width: 8%;">倦怠感</th>
+          <th style="width: 25%;">服薬状況 (英名併記)</th>
+          <th style="width: 30%;">特記事項</th>
+        </tr>
+      </thead>
+      <tbody class="text-xs text-gray-800">
+        <% @daily_logs.each do |log| %>
+          <tr class="<%= cycle('', 'bg-gray-50') %>">
+            <td style="text-align: center; font-weight: bold; color: #555;">
+              <%= log.date.strftime('%m/%d') %>
+            </td>
+            
+            <td style="text-align: center;">
+              <% temp = log.temperature_logs.first&.value %>
+              <% if temp %>
+                <span class="<%= 'text-orange-600 font-bold' if temp >= 37.5 %>" style="white-space: nowrap;">
+                  <%= temp %><span style="font-size: 9px; margin-left: 1px; font-weight: bold;">℃</span>
+                </span>
+              <% else %>
+                <span style="color: #ccc;">ー</span>
+              <% end %>
+            </td>
+
+            <td style="text-align: center; font-weight: bold; <%= 'background-color: #fee2e2; color: #b91c1c;' if log.pain_vas >= 7 %>">
+              <%= log.pain_vas %>
+            </td>
+
+            <td style="text-align: center; font-weight: bold; <%= 'background-color: #eff6ff; color: #1d4ed8;' if log.fatigue_vas >= 7 %>">
+              <%= log.fatigue_vas %>
+            </td>
+
+            <td style="padding-left: 8px;">
+              <% log.medication_logs.where(is_taken: true).each do |med| %>
+                <div style="margin-bottom: 2px; white-space: nowrap;">
+                  <span style="font-weight: bold;"><%= med.medicine_name %></span>
+                  <% if med.english_name.present? %>
+                    <span style="font-size: 9px; color: #888; font-style: italic;">(<%= med.english_name %>)</span>
+                  <% end %>
+                </div>
+              <% end %>
+            </td>
+
+            <td style="color: #666; font-style: italic; font-size: 10px; padding-left: 8px;">
+              <%= truncate(log.memo, length: 35) %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer-container">
+    <div class="notes-section">
+      <p style="font-size: 9px; font-weight: bold; color: #666; margin: 0 0 5px 0; letter-spacing: 0.5px;">PHYSICIAN'S NOTES / 患者メモ</p>
+      <div class="notes-box">
+        診察時に相談したいこと、生活上の変化、または医師からの指示などを記入してください。
+      </div>
+    </div>
+    <div class="signature-section">
+      <p style="font-size: 9px; font-weight: bold; color: #666; margin: 0 0 5px 0; letter-spacing: 0.5px;">AUTHORIZED SIGNATURE</p>
+      <div class="signature-box">
+        <div style="font-size: 9px; color: #ddd; margin-top: 35px;">確認印 / 署名</div>
+      </div>
+    </div>
+    <div class="clear"></div>
+  </div>
+
+</div>

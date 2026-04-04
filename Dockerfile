@@ -26,8 +26,9 @@ RUN apt-get update -qq && \
     libpq-dev \
     libvips \
     libffi-dev \
+    fonts-noto-cjk \
     pkg-config
-    
+
 # Install application gems
 COPY Gemfile Gemfile.lock ./
 RUN bundle install && \
@@ -46,7 +47,16 @@ FROM base
 
 # Install packages needed for deployment
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libvips postgresql-client && \
+    apt-get install --no-install-recommends -y \
+    curl \
+    libvips \
+    postgresql-client \
+    fonts-noto-cjk \
+    libxrender1 \
+    libxext6 \
+    fontconfig \
+    xfonts-75dpi \
+    xfonts-base && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Copy built artifacts: gems, application

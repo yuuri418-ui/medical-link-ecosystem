@@ -57,4 +57,7 @@ gem "chartkick"
 
 gem "simple_calendar", "~> 2.4"
 
+gem 'wicked_pdf'
+gem 'wkhtmltopdf-binary'
+
 

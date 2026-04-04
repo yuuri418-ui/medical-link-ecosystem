@@ -42,14 +42,22 @@ class DailyLogsController < ApplicationController
                            .group(:date)
                            .maximum(:value)
 
-    @daily_logs = DailyLog.order(date: :desc)
+    @daily_logs = current_user.daily_logs.includes(:temperature_logs, :medication_logs).order(date: :desc)
 
     respond_to do |format|
       format.html
       format.csv do
-        # current_user の全ての記録を対象にする（元の形に近い状態）
-        @daily_logs = current_user.daily_logs.includes(:medication_logs).order(date: :desc)
         send_data @daily_logs.to_csv, filename: "my_health_log_#{Date.today}.csv"
+      end
+      format.pdf do
+        render pdf: "health_report_#{Date.today}",
+               layout: 'pdf',
+               template: 'daily_logs/report',
+               # 「HTML形式のテンプレートを使ってね」と念押しします
+               formats: [:html], 
+               # --------------------------------------------------
+               encoding: 'UTF-8',
+               show_as_html: params[:debug].present?
       end
     end
   end
