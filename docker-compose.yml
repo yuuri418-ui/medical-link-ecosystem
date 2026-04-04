@@ -21,5 +21,8 @@ services:
       - BUNDLE_DEPLOYMENT=0
       - RAILS_ENV=development
       - TZ=Asia/Tokyo
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     stdin_open: true
     tty: true
+    env_file:
+      - .env

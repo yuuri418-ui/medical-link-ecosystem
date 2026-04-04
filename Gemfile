@@ -56,3 +56,5 @@ gem "importmap-rails", "~> 2.2"
 gem "chartkick"
 
 gem "simple_calendar", "~> 2.4"
+
+
