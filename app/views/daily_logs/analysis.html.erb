@@ -1,94 +1,97 @@
+<% # 💡 data-action="change->heatmap#updateLinks" を追加して、入力変更を監視します %>
 <div class="max-w-2xl mx-auto py-8 px-4" 
      data-controller="heatmap" 
      data-heatmap-counts-value="<%= @pain_counts.to_json %>"
-     data-heatmap-max-value="<%= @max_count %>">
+     data-heatmap-max-value="<%= @max_count %>"
+     data-action="change->heatmap#updateLinks">
   
   <h1 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
     <span class="mr-2">📊</span> 痛みの分析ヒートマップ
   </h1>
 
-  <% # 📅 期間指定フォーム %>
+  <% # 📅 期間指定フォーム & 出力ボタン %>
   <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100 mb-8">
     <%= form_with url: analysis_daily_logs_path, method: :get, local: true do |f| %>
       <div class="grid grid-cols-2 gap-4 mb-6">
         <div>
           <%= f.label :start_date, "開始日", class: "text-[10px] font-bold text-gray-400 mb-1 block uppercase tracking-wider" %>
-          <%= f.date_field :start_date, value: @start_date, class: "w-full rounded-xl border-gray-200 text-sm" %>
+          <% # 💡 data: { heatmap_target: "startDate" } を追加 %>
+          <%= f.date_field :start_date, value: @start_date, 
+                           data: { heatmap_target: "startDate" },
+                           class: "w-full rounded-xl border-gray-200 text-sm" %>
         </div>
         <div>
           <%= f.label :end_date, "終了日", class: "text-[10px] font-bold text-gray-400 mb-1 block uppercase tracking-wider" %>
-          <%= f.date_field :end_date, value: @end_date, class: "w-full rounded-xl border-gray-200 text-sm" %>
+          <% # 💡 data: { heatmap_target: "endDate" } を追加 %>
+          <%= f.date_field :end_date, value: @end_date, 
+                           data: { heatmap_target: "endDate" },
+                           class: "w-full rounded-xl border-gray-200 text-sm" %>
         </div>
       </div>
       
-      <% # ✅ 物理的にスタイルを固定したボタン %>
-      <button type="submit" 
-              style="background-color: #1f2937; color: white; width: 100%; padding: 12px; border-radius: 16px; border: none; font-weight: bold; cursor: pointer; display: block; text-align: center;">
-        分析期間を更新
-      </button>
+      <div class="space-y-3">
+        <% # 分析期間の更新ボタン %>
+        <button type="submit" 
+                style="background-color: #1f2937; color: white; width: 100%; padding: 12px; border-radius: 16px; border: none; font-weight: bold; cursor: pointer; display: block; text-align: center;">
+          分析期間を更新
+        </button>
+
+        <% # ✅ 出力ボタンセクション（PDF & CSV） %>
+        <div class="grid grid-cols-2 gap-3">
+          <% # 💡 data: { heatmap_target: "pdfLink" } を追加 %>
+          <%= link_to analysis_daily_logs_path(start_date: @start_date, end_date: @end_date, format: :pdf), 
+                      target: "_blank",
+                      data: { heatmap_target: "pdfLink" },
+                      style: "background-color: #fef2f2; color: #dc2626; padding: 10px; border-radius: 12px; font-size: 12px; font-weight: bold; text-align: center; border: 1px solid #fecaca; text-decoration: none;" do %>
+            📄 PDFレポート出力
+          <% end %>
+
+          <% # 💡 data: { heatmap_target: "csvLink" } を追加 %>
+          <%= link_to analysis_daily_logs_path(start_date: @start_date, end_date: @end_date, format: :csv), 
+                      data: { heatmap_target: "csvLink" },
+                      style: "background-color: #f0fdf4; color: #16a34a; padding: 10px; border-radius: 12px; font-size: 12px; font-weight: bold; text-align: center; border: 1px solid #bbf7d0; text-decoration: none;" do %>
+            📥 CSVデータを保存
+          <% end %>
+        </div>
+      </div>
     <% end %>
   </div>
 
+  <% # --- 以下、ヒートマップとグラフの表示（変更なし） --- %>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-  
-  <% # 左側：ヒートマップ %>
-  <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-    <h2 class="text-sm font-bold text-gray-700 mb-4 flex items-center">
-      <span class="mr-2">👤</span> 痛みの部位分布
-    </h2>
-    <div class="flex flex-col items-center">
-      <% if @has_pain_data %>
-        <div class="w-48 mb-6">
-          <%= render 'shared/body_schema_display' %>
+    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+      <h2 class="text-sm font-bold text-gray-700 mb-4 flex items-center">
+        <span class="mr-2">👤</span> 痛みの部位分布
+      </h2>
+      <div class="flex flex-col items-center">
+        <% if @has_pain_data %>
+          <div class="w-48 mb-6">
+            <%= render 'shared/body_schema_display' %>
+          </div>
+        <% else %>
+          <p class="py-20 text-xs text-gray-400">期間内の痛み記録はありません</p>
+        <% end %>
+      </div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+      <h2 class="text-sm font-bold text-gray-700 mb-4 flex items-center">
+        <span class="mr-2">📈</span> 体調・指標の推移
+      </h2>
+      <div class="space-y-6">
+        <div>
+          <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">最高体温 (°C)</p>
+          <%= line_chart @temperature_data, min: 35.0, max: 42.0, points: true, curve: true, colors: ["#10b981"], height: "120px" %>
         </div>
-        <% # 凡例などはそのまま %>
-      <% else %>
-        <p class="py-20 text-xs text-gray-400">期間内の痛み記録はありません</p>
-      <% end %>
+        <div>
+          <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">痛み (VAS: 0-10)</p>
+          <%= line_chart @pain_vas_data, min: 0, max: 10, points: true, curve: true, colors: ["#3b82f6"], height: "120px" %>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">倦怠感 (VAS: 0-10)</p>
+          <%= line_chart @fatigue_vas_data, min: 0, max: 10, points: true, curve: true, colors: ["#8b5cf6"], height: "120px" %>
+        </div>
+      </div>
     </div>
   </div>
-  
-  <% # 右側：指標グラフエリア %>
-<div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-  <h2 class="text-sm font-bold text-gray-700 mb-4 flex items-center">
-    <span class="mr-2">📈</span> 体調・指標の推移
-  </h2>
-
-  <div class="space-y-6">
-    <% # 1. 体温グラフ（緑系） %>
-    <div>
-      <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">最高体温 (°C)</p>
-      <%= line_chart @temperature_data,
-                     min: 35.0, max: 42.0,
-                     points: true,
-                     curve: true,
-                     colors: ["#10b981"],
-                     height: "120px" %>
-    </div>
-
-    <% # 2. 痛みグラフ（青系） %>
-    <div>
-      <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">痛み (VAS: 0-10)</p>
-      <%= line_chart @pain_vas_data,
-                     min: 0, max: 10,
-                     points: true,
-                     curve: true,
-                     colors: ["#3b82f6"],
-                     height: "120px" %>
-    </div>
-
-    <% # 3. 倦怠感グラフ（紫系） %>
-    <div>
-      <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">倦怠感 (VAS: 0-10)</p>
-      <%= line_chart @fatigue_vas_data,
-                     min: 0, max: 10,
-                     points: true,
-                     curve: true,
-                     colors: ["#8b5cf6"],
-                     height: "120px" %>
-    </div>
-  </div>
-</div>
- 
- 
 </div>

@@ -9,18 +9,16 @@ class DailyLogsController < ApplicationController
       @daily_log.medication_logs.build(
         medicine_name: medicine.name,
         dosage: medicine.dosage,
-        is_taken: false # 初期値は未服用
+        is_taken: false
       )
     end
 
-    # もし処方薬が一つも登録されていない場合のために、空の入力欄も一つ作っておく
     @daily_log.medication_logs.build if @daily_log.medication_logs.empty?
   end
 
   def index
-    @daily_logs = current_user.daily_logs.includes(:temperature_logs).order(date: :desc)
+    @daily_logs = current_user.daily_logs.includes(:temperature_logs, :medication_logs).order(date: :desc)
 
-    # 1. 表示期間の判定（デフォルトは1ヶ月）
     @period = params[:period] || "1month"
     start_date = case @period
                  when "1month"  then 1.month.ago.to_date
@@ -30,19 +28,11 @@ class DailyLogsController < ApplicationController
                  else 1.month.ago.to_date
                  end
 
-    # 2. データの取得
     chart_logs = current_user.daily_logs.where(date: start_date..Date.today).order(:date)
 
-    # 3. 各グラフ用データの作成
     @pain_data = chart_logs.pluck(:date, :pain_vas).to_h
     @fatigue_data = chart_logs.pluck(:date, :fatigue_vas).to_h
-  
-    # 体温は1日に複数ある可能性があるため、その日の「最高体温」をグラフにする例
-    @temp_data = chart_logs.joins(:temperature_logs)
-                           .group(:date)
-                           .maximum(:value)
-
-    @daily_logs = current_user.daily_logs.includes(:temperature_logs, :medication_logs).order(date: :desc)
+    @temp_data = chart_logs.joins(:temperature_logs).group(:date).maximum(:value)
 
     respond_to do |format|
       format.html
@@ -53,9 +43,7 @@ class DailyLogsController < ApplicationController
         render pdf: "health_report_#{Date.today}",
                layout: 'pdf',
                template: 'daily_logs/report',
-               # 「HTML形式のテンプレートを使ってね」と念押しします
-               formats: [:html], 
-               # --------------------------------------------------
+               formats: [:html],
                encoding: 'UTF-8',
                show_as_html: params[:debug].present?
       end
@@ -68,7 +56,6 @@ class DailyLogsController < ApplicationController
 
   def edit
     @daily_log = current_user.daily_logs.find(params[:id])
-    # 編集画面でも、もし体温や服薬のデータがなければ箱を作っておく（必要に応じて）
   end
 
   def create
@@ -86,41 +73,67 @@ class DailyLogsController < ApplicationController
       redirect_to daily_log_path(@daily_log), notice: "体調ログを更新しました。"
     else
       render :edit, status: :unprocessable_entity
-   end
+    end
   end
 
   def analysis
+    # 1. 期間の設定
     @start_date = params[:start_date].presence || 30.days.ago.to_date.to_s
     @end_date = params[:end_date].presence || Date.today.to_s
 
-    @logs = current_user.daily_logs.includes(:temperature_logs).where(date: @start_date..@end_date).order(:date)
-  
+    # 2. データの取得
+    @logs = current_user.daily_logs
+                        .includes(:temperature_logs, :medication_logs)
+                        .where(date: @start_date..@end_date)
+                        .order(:date)
+
+    # 3. グラフ用データの作成
     @pain_vas_data = @logs.map { |log| [log.date, log.pain_vas] }
     @fatigue_vas_data = @logs.map { |log| [log.date, log.fatigue_vas] }
-  
-    # ✅ 体温データの取得方法を修正
-    @temperature_data = @logs.map { |log| 
-    # temperature_logsの中から、measurementカラムの最大値を取得
-      max_temp = log.temperature_logs.maximum(:value) || 0
-      [log.date, max_temp] 
-    }
+    @temperature_data = @logs.map { |log| [log.date, log.temperature_logs.maximum(:value) || 0] }
+
+    # 4. ヒートマップ用データの集計
     @pain_counts = Hash.new(0)
-  
     @logs.each do |log|
-      # pain_partsを安全に読み込む
       parts = log.pain_parts
-      parts = JSON.parse(parts) if parts.is_a?(String)
-    
-      parts&.each { |part| @pain_counts[part] += 1 }
+      
+      # ✅ 安全な解析処理
+      if parts.is_a?(String) && parts.present?
+        begin
+          decoded_parts = JSON.parse(parts)
+          decoded_parts&.each { |part| @pain_counts[part] += 1 }
+        rescue JSON::ParserError
+          # データが不正な場合はスキップ
+        end
+      elsif parts.is_a?(Array)
+        parts.each { |part| @pain_counts[part] += 1 }
+      end
     end
 
-    # 集計した結果、一つでも部位が選ばれていれば true
     @has_pain_data = @pain_counts.any?
+    @max_count = @has_pain_data ? @pain_counts.values.max : 1
 
-    if @has_pain_data
-      @max_count = @pain_counts.values.max
-    else
-      @max_count = 1
+    # 5. 出力形式ごとの処理
+    respond_to do |format|
+      format.html
+      
+      # ✅ ここを修正：テンプレートを探さず、モデルの to_csv メソッドなどを直接呼び出す
+      format.csv do
+        # もし DailyLog モデルに self.to_csv(logs) を定義している場合
+        send_data @logs.to_csv, 
+                  filename: "health_log_#{@start_date}_to_#{@end_date}.csv", 
+                  type: :csv
+      end
+
+      format.pdf do
+        @daily_logs = @logs.reverse_order 
+        render pdf: "summary_report_#{@start_date}",
+               layout: 'pdf',
+               template: 'daily_logs/report',
+               formats: [:html],
+               encoding: 'UTF-8',
+               show_as_html: params[:debug].present?
+      end
     end
   end
 
