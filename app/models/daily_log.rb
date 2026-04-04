@@ -7,6 +7,12 @@ class DailyLog < ApplicationRecord
 
   validates :date, presence: true, uniqueness: { scope: :user_id }
 
+  validates :condition, presence: true, inclusion: { in: 1..5 }
+  validates :pain_vas, :fatigue_vas, inclusion: { in: 0..10 }, allow_nil: true
+  validates :stiffness_duration, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+
+  validate :date_cannot_be_in_the_future
+
   # 子要素の保存を許可し、中身が空なら無視する
   accepts_nested_attributes_for :medication_logs, 
     allow_destroy: true, 
@@ -95,5 +101,13 @@ end
 
   def start_time
     self.date
+  end
+
+  private
+
+  def date_cannot_be_in_the_future
+    if date.present? && date > Date.today
+      errors.add(:date, "は今日以前の日付を選択してください")
+    end
   end
 end
