@@ -45,8 +45,12 @@ class DailyLogsController < ApplicationController
     @daily_logs = DailyLog.order(date: :desc)
 
     respond_to do |format|
-      format.html # 通常の画面表示
-      format.csv { send_data @daily_logs.to_csv, filename: "my_health_log_#{Date.today}.csv" }
+      format.html
+      format.csv do
+        # current_user の全ての記録を対象にする（元の形に近い状態）
+        @daily_logs = current_user.daily_logs.includes(:medication_logs).order(date: :desc)
+        send_data @daily_logs.to_csv, filename: "my_health_log_#{Date.today}.csv"
+      end
     end
   end
 
