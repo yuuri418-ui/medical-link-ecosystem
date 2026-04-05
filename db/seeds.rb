@@ -1,3 +1,4 @@
+return if DailyLog.exists?(user_id: User.find_by(email: "demo@example.com")&.id)
 # 既存データのクリア（必要に応じて）
 puts "データをクリーニング中..."
 
