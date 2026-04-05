@@ -1,6 +1,11 @@
 class MedicationLog < ApplicationRecord
   belongs_to :daily_log
-  validates :medicine_name, presence: true
+  
+  validates :medicine_name, presence: true, length: { maximum: 100 }
+  validates :dosage, length: { maximum: 50 }
+  validates :english_name, length: { maximum: 255 }
+
+  validates :is_taken, inclusion: { in: [true, false] }
 
   require 'net/http'
   require 'uri'

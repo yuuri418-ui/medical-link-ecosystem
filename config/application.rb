@@ -35,6 +35,13 @@ module Myapp
 
     config.time_zone = 'Tokyo'
     config.active_record.default_timezone = :local
+
+    if Rails.env.test?
+      config.hosts << ".example.com"
+      config.hosts << "www.example.com"
+      config.hosts << "127.0.0.1"
+      config.hosts << "localhost"
+    end
     
   end
 end

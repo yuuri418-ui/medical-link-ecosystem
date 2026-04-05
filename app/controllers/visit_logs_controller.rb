@@ -1,5 +1,4 @@
 class VisitLogsController < ApplicationController
-  before_action :authenticate_user!
 
   def index
     @visit_logs = current_user.visit_logs.order(:visited_on)
@@ -30,8 +29,7 @@ class VisitLogsController < ApplicationController
       # 保存できたら一覧画面へ
       redirect_to visit_logs_path, notice: "受診記録を保存しました。"
     else
-      # 失敗したら入力画面を再表示（バリデーションエラーなど）
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -50,7 +48,7 @@ class VisitLogsController < ApplicationController
     if @visit_log.update(visit_log_params)
       redirect_to @visit_log, notice: "受診記録を更新しました。"
     else
-     render :edit, status: :unprocessable_entity
+     render :edit, status: :unprocessable_content
     end
   end
 

@@ -17,8 +17,7 @@ class User < ApplicationRecord
   validates :gender,          presence: true
   validates :birthday,        presence: true
   validates :phone_number,    presence: true
-  validates :diagnosis_name,  presence: true
-  validates :started_at,      presence: true
+  
 
   # フリガナの形式チェック（全角カタカナのみ許可）
   VALID_KANA_REGEX = /\A[ァ-ヶー－]+\z/
