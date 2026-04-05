@@ -13,7 +13,6 @@ class DeviseCreateUsers < ActiveRecord::Migration[7.1]
       t.string :first_name_kana, null: false     # 名（フリガナ）
       t.integer :gender,         null: false, default: 0 # 性別（0:未選択, 1:男性, 2:女性 など）
       t.date   :birthday,         null: false     # 誕生日
-      t.string :address,         null: false     # 住所
       t.string :phone_number,    null: false     # 携帯番号
       t.string :diagnosis_name                   # 診断名
       t.date   :started_at                       # 発症時期/治療開始日
