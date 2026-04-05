@@ -64,7 +64,7 @@ puts "90日分のデモデータを生成中..."
 
 pain_parts_list = ['head', 'hand_l', 'hand_r', 'knee_l', 'knee_r', 'shoulder_l', 'shoulder_r']
 
-90.downto(0) do |i|
+10.downto(0) do |i|
   date = Date.today - i
   
   # 少しリアルな「体調の波」を作る
