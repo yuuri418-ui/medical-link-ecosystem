@@ -1,5 +1,13 @@
 ja:
   devise:
+    shared:
+      links:
+        sign_up: "アカウント登録"
+        forgot_your_password: "パスワードを忘れた場合"
+        sign_in: "ログイン"
+        confirmation_instructions: "確認メールの再送"
+        unlock_instructions: "アカウント凍結解除メールの再送"
+        omniauth_login: "%{kind}でログイン"
     sessions:
       signed_in: "ログインしました。"
       signed_out: "ログアウトしました。"
