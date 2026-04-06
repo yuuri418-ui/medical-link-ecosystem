@@ -13,7 +13,7 @@ medicines_data = [
   { medicine_name: "メトトレキサート", english_name: "Methotrexate", dosage: "8mg" },
   { medicine_name: "プレドニン", english_name: "Prednisolone", dosage: "5mg" }
 ]
-pain_parts_list = ['hand_l', 'hand_r', 'knee_l', 'knee_r', 'shoulder_l', 'shoulder_r', 'foot_l', 'foot_r']
+pain_parts_list = ['head', 'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow', 'hand_l', 'hand_r', 'left_knee', 'right_knee', 'left_ankle', 'right_ankle', 'abdomen']
 
 # メモのバリエーション
 good_memos = ["体調は安定しています。", "今日は調子が良いです。", "散歩に行けました。"]
