@@ -1,4 +1,10 @@
-# 1. ユーザーの確保（住所なし、空OK設定を活かします）
+puts "デモユーザーの既存データをクリーニング中..."
+# データの重複によるバリデーションエラーを防ぐため、既存のデモユーザーを削除します
+if demo_user = User.find_by(email: "demo@example.com")
+  demo_user.destroy
+end
+
+# 1. ユーザーの作成
 user = User.find_or_create_by!(email: "demo@example.com") do |u|
   u.last_name = "デモ"; u.first_name = "ユーザー"
   u.last_name_kana = "デモ"; u.first_name_kana = "ユーザー"
@@ -28,16 +34,21 @@ pain_parts_list = ['hand_l', 'hand_r', 'knee_l', 'knee_r', 'shoulder_l', 'should
 
 180.downto(0) do |i|
   date = Date.today - i
-  # 以前のユーザーを破壊済みなので、すべてのデータが新しく作られます
-  daily_log = user.daily_logs.create!(
-    date: date,
-    condition: rand(3..5),
-    pain_vas: rand(1..3),
-    fatigue_vas: rand(1..4),
-    stiffness_duration: [0, 10, 15].sample,
-    memo: "体調は安定しています。",
-    pain_parts: (rand(1..10) > 8) ? pain_parts_list.sample(rand(1..2)) : []
-  )
+  
+  begin
+    daily_log = user.daily_logs.create!(
+      date: date,
+      condition: rand(3..5),
+      pain_vas: rand(1..3),
+      fatigue_vas: rand(1..4),
+      stiffness_duration: [0, 10, 15].sample,
+      memo: "体調は安定しています。",
+      pain_parts: (rand(1..10) > 8) ? pain_parts_list.sample(rand(1..2)) : []
+    )
+  rescue ActiveRecord::RecordInvalid => e
+    puts "\n[Error] #{date} のデータ作成に失敗しました: #{e.record.errors.full_messages.join(', ')}"
+    next
+  end
 
   # ★ 服薬ログを1日ずつ確実に、正しいカラム名（medicine_name）で入れる
   medicines_data.each do |med|
