@@ -15,72 +15,71 @@ medicines_data = [
 ]
 pain_parts_list = ['head', 'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow', 'hand_l', 'hand_r', 'left_knee', 'right_knee', 'left_ankle', 'right_ankle', 'abdomen']
 
-# メモのバリエーション
+# --- 受診記録と血液検査データの生成 (30日おきに6回分) ---
+puts "受診記録と血液検査データを生成中..."
+[150, 120, 90, 60, 30, 0].each_with_index do |days_ago, index|
+  v_date = Date.today - days_ago
+  # 重複防止
+  next if user.visit_logs.exists?(visited_on: v_date)
+
+  visit = user.visit_logs.build(
+    visited_on: v_date,
+    hospital_name: "中央総合病院",
+    department: "リウマチ科",
+    doctor_name: "山田先生",
+    memo: index == 5 ? "本日の定期受診。体調の波があることを相談。" : "定期受診。経過観察。"
+  )
+  visit.save(validate: false)
+
+  # 血液検査データの追加（徐々に改善、または波がある設定）
+  # CRP: 炎症の指標（高いと悪い）
+  crp_value = [0.8, 1.2, 0.5, 0.9, 0.2, 0.15][index] 
+  # MMP-3: 関節破壊の指標
+  mmp3_value = [85, 70, 65, 75, 50, 45][index]
+
+  visit.blood_test_items.build([
+    { name: "CRP", value: crp_value, unit: "mg/dL", reference_range: "0.14以下", category: "炎症" },
+    { name: "MMP-3", value: mmp3_value, unit: "ng/mL", reference_range: "17.3-59.7", category: "関節破壊指標" },
+    { name: "WBC", value: rand(4000..8000), unit: "/μL", reference_range: "3300-8600", category: "血算" }
+  ]).each { |item| item.save(validate: false) }
+end
+
+# --- 180日分の体調ログ生成 (以前のロジックを継続) ---
 good_memos = ["体調は安定しています。", "今日は調子が良いです。", "散歩に行けました。"]
 slight_fever_memos = ["少し体が熱っぽいです。", "微熱がありますが、動けます。", "大事をとって早めに休みます。"]
 bad_memos = ["高熱が出て関節がひどく痛みます。", "動くのが辛く、一日横になっています。", "炎症が強い感じがします。"]
-
-# 状態管理用の変数
 bad_days_remaining = 0
 
-# 3. 180日分のデータを生成
-puts "ストーリー性のある180日分のデータを生成中..."
-
+puts "180日分の体調・服薬ストーリーを生成中..."
 180.downto(0) do |i|
   date = Date.today - i
   next if user.daily_logs.exists?(date: date)
 
-  # --- 体調判定ロジック ---
-  # 30日周期の開始判定、または継続判定
   if bad_days_remaining > 0
-    # 連続不調の継続
-    status = :very_bad
-    bad_days_remaining -= 1
-  elsif (i % 30 == 15) # 30日ごとに不調フラグを立てる（例：15日目、45日目...）
-    status = :very_bad
-    bad_days_remaining = 2 # 今日を含めて合計3日間
-  elsif rand(1..4) == 1 # 残りの日のうち、約25%（週1.7日＝月約7日）を微熱に
+    status = :very_bad; bad_days_remaining -= 1
+  elsif (i % 30 == 15)
+    status = :very_bad; bad_days_remaining = 2
+  elsif rand(1..4) == 1
     status = :slight_fever
   else
     status = :good
   end
 
-  # パラメータ設定
   case status
   when :very_bad
-    cond = rand(1..2)
-    p_vas = rand(7..9)
-    f_vas = rand(7..9)
-    temp = rand(37.8..38.5).round(1)
-    stiffness = [120, 180, 240].sample
-    memo = bad_memos.sample
-    parts = pain_parts_list.sample(rand(3..5))
+    cond, p_vas, f_vas, temp = rand(1..2), rand(7..9), rand(7..9), rand(37.8..38.5).round(1)
+    stiffness, memo, parts = [120, 180, 240].sample, bad_memos.sample, pain_parts_list.sample(rand(3..5))
   when :slight_fever
-    cond = 3
-    p_vas = rand(3..5)
-    f_vas = rand(4..6)
-    temp = rand(37.0..37.4).round(1)
-    stiffness = [30, 45, 60].sample
-    memo = slight_fever_memos.sample
-    parts = pain_parts_list.sample(rand(1..2))
+    cond, p_vas, f_vas, temp = 3, rand(3..5), rand(4..6), rand(37.0..37.4).round(1)
+    stiffness, memo, parts = [30, 45, 60].sample, slight_fever_memos.sample, pain_parts_list.sample(rand(1..2))
   else
-    cond = rand(4..5)
-    p_vas = rand(1..2)
-    f_vas = rand(1..3)
-    temp = rand(36.2..36.8).round(1)
-    stiffness = [0, 5, 10].sample
-    memo = good_memos.sample
-    parts = []
+    cond, p_vas, f_vas, temp = rand(4..5), rand(1..2), rand(1..3), rand(36.2..36.8).round(1)
+    stiffness, memo, parts = [0, 5, 10].sample, good_memos.sample, []
   end
 
-  # 保存実行
-  daily_log = user.daily_logs.build(
-    date: date, condition: cond, pain_vas: p_vas, fatigue_vas: f_vas,
-    stiffness_duration: stiffness, memo: memo, pain_parts: parts
-  )
+  daily_log = user.daily_logs.build(date: date, condition: cond, pain_vas: p_vas, fatigue_vas: f_vas, stiffness_duration: stiffness, memo: memo, pain_parts: parts)
   daily_log.save(validate: false)
 
-  # 服薬・体温
   medicines_data.each do |med|
     daily_log.medication_logs.build(medicine_name: med[:medicine_name], english_name: med[:english_name], dosage: med[:dosage], is_taken: true).save(validate: false)
   end
@@ -88,4 +87,4 @@ puts "ストーリー性のある180日分のデータを生成中..."
   
   print "■" if i % 10 == 0
 end
-puts "\n180日分のストーリーデータが完成しました！"
+puts "\nすべて完了しました！"
