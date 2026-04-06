@@ -24,7 +24,7 @@ end
 
 # 4. 180日分の体調データ ＋ 【服薬記録】 を生成
 puts "180日分のデータを生成中（服薬記録：medicine_nameを使用）..."
-pain_parts_list = ['hand_l', 'hand_r', 'knee_l', 'knee_r', 'shoulder_l', 'shoulder_r']
+pain_parts_list = ['hand_l', 'hand_r', 'left_knee', 'right_knee', 'left_shoulder', 'right_shoulder', 'abdomen']
 
 180.downto(0) do |i|
   date = Date.today - i
