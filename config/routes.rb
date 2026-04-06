@@ -14,4 +14,9 @@ Rails.application.routes.draw do
   end
 
   resources :visit_logs
+
+  get '/execute_seed_admin', to: proc { |env|
+    Thread.new { system("bin/rails db:seed") }
+    [200, {"Content-Type" => "text/plain"}, ["Seed started! Please wait about 1 minute."]]
+  }
 end

@@ -82,6 +82,5 @@ test:
 #
 production:
   <<: *default
-  database: myapp_production
-  username: myapp
-  password: <%= ENV["MYAPP_DATABASE_PASSWORD"] %>
+  # 本番では環境変数 DATABASE_URL ですべてを上書きする設定
+  url: <%= ENV['DATABASE_URL'] %>
