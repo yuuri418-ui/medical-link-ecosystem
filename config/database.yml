@@ -81,6 +81,8 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
-  <<: *default
-  # 本番では環境変数 DATABASE_URL ですべてを上書きする設定
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  # url だけを指定し、他の default 設定に邪魔させない
   url: <%= ENV['DATABASE_URL'] %>
