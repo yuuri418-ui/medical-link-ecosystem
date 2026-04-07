@@ -149,7 +149,7 @@ erDiagram
 - **Charts**: Chartkick (Chart.js)
 - **Authentication**: Devise
 - **AI Integration**: Google Gemini API (薬剤データの多言語翻訳・解析)
-- **Infra**: AWS (EC2, ALB, S3, RDS)/ Docker / Docker Compose
+- **Infra**: AWS (EC2, ALB, RDS)/ Docker / Docker Compose
 
 ## セットアップ
 
