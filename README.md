@@ -59,13 +59,16 @@ MyHealth Logは、膠原病や免疫疾患などの希少疾患・慢性疾患�
 希少疾患や指定難病は国内の症例が少なく、最新の治療法や研究報告の多くは英語圏から発信されます。また、将来的な海外渡航や国際的な研究データへの寄与を見据えた際、国内の薬剤名だけではデータの汎用性に限界があると考えました。
 
 ### 実装済みの機能
-- **薬剤データの自動翻訳**: 
-  Gemini APIを活用することで、ユーザーが日本語で登録した薬剤データをリアルタイムで国際標準名称（英名）へ変換・構造化し、**「言語の壁を超えて、世界中の研究データと繋がれる拡張性」**を持たせています。
+- **LLMを用いたデータクレンジングと名寄せ**: 
+  ユーザーが入力した自由形式の薬剤名を、Gemini APIを用いてリアルタイムで国際標準名称（英名）へ変換・構造化して保存します。これにより、表記揺れの吸収と将来的な外部データセットとの統合を容易にする**「データの意味的な名寄せ」**を実現しています。
 
-### 今後の拡張予定 (Roadmap)
-- **健康アドバイス生成**: 記録された体調（VASスコア）や検査数値の変化をAIが分析し、ユーザーにパーソナライズされた生活のアドバイスを提示。
-- **検査結果の解釈補助**: 血液検査の数値が基準値を外れた際、その項目が持つ意味を分かりやすく解説する機能。
-- **血液検査結果・処方箋・お薬手帳の画像解析**: OCRとGeminiの画像認識を組み合わせた、写真撮影による自動入力機能。
+## 今後の拡張予定 (Roadmap)
+- **Pythonを用いた高度な統計解析・推論**: 
+  現在はRails(Ruby)で基本的な可視化を行っていますが、今後はPython（Pandas / Scikit-learn）を用いたデータ分析パイプラインを統合予定です。蓄積されたVASスコアやバイタルデータに対し、相関分析や異常検知アルゴリズムを適用し、症状の悪化予兆を検知するエンジンの開発を検討しています。
+- **非構造化データの高度な処理**: 
+  Pythonのライブラリ（OpenCVやPyTesseract）を活用した血液検査結果の画像認識（OCR）機能の実装。
+- **データ分析基盤の構築**: 
+  蓄積されたDBデータをBigQuery等のDWHへ連携し、BIツールを用いたより高度な相関分析（気象データと疼痛の関係など）の可視化。
 
 ## データベース設計 (ER図)
 
@@ -142,14 +145,17 @@ erDiagram
 ## 技術スタック
 
 - **Framework**: Ruby on Rails 7.1.x
-- **Language**: Ruby 3.2.2
+- **Language**: Ruby 3.2.2, JavaScript (ES6+)
 - **Database**: PostgreSQL (Amazon RDS)
-- **Frontend**: Tailwind CSS, Hotwire (Turbo / Stimulus)
+- **Frontend**: JavaScript (Vanilla JS), Tailwind CSS, Hotwire (Turbo 8 / Stimulus 3), Importmaps (Buildless JS アセット管理)
+- **Calendar**: Simple Calendar
 - **Reporting**: Wicked PDF (wkhtmltopdf)
 - **Charts**: Chartkick (Chart.js)
 - **Authentication**: Devise
 - **AI Integration**: Google Gemini API (薬剤データの多言語翻訳・解析)
-- **Infra**: AWS (EC2, ALB, S3, RDS)/ Docker / Docker Compose
+- **Testing**: RSpec, FactoryBot
+- **Infra**: AWS (App Runner, RDS) / Docker / Docker Compose
+- **CI/CD**: GitHub Actions (if applicable) / App Runner Automatic Deployment
 
 ## セットアップ
 
