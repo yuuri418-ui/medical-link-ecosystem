@@ -63,7 +63,7 @@ class DailyLogsController < ApplicationController
     if @daily_log.save
       redirect_to daily_logs_path, notice: "体調を記録しました！"
     else
-      render :new, status: :unprocessable_content
+      render :new, status: :unprocessable_entity
     end
   end
 
