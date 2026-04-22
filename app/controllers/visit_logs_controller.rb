@@ -1,4 +1,5 @@
 class VisitLogsController < ApplicationController
+  before_action :authenticate_user!
 
   def index
     @visit_logs = current_user.visit_logs.order(:visited_on)
@@ -9,7 +10,7 @@ class VisitLogsController < ApplicationController
     # 表示する項目を決定（クリックされた項目、なければ最初の項目、それもなければ"CRP"）
     @active_item = params[:graph_item] || @item_names.first || "CRP"
 
-    # 📈 グラフ用データ：@active_item に基づいて取得
+    # 📈 グラフ用データ
     @chart_data = BloodTestItem.where(visit_log: @visit_logs, name: @active_item)
                                .joins(:visit_log)
                                .group("visit_logs.visited_on")
@@ -18,18 +19,17 @@ class VisitLogsController < ApplicationController
 
   def new
     @visit_log = current_user.visit_logs.build
-    # 最初から3つずつ入力欄を表示させる
+    # 最初から一定数の入力枠を表示
+    5.times { @visit_log.blood_test_items.build }
     3.times { @visit_log.prescribed_medicines.build }
-    3.times { @visit_log.blood_test_items.build }
   end
 
   def create
     @visit_log = current_user.visit_logs.build(visit_log_params)
     if @visit_log.save
-      # 保存できたら一覧画面へ
       redirect_to visit_logs_path, notice: "受診記録を保存しました。"
     else
-      render :new, status: :unprocessable_content
+      render :new, status: :unprocessable_entity
     end
   end
 
@@ -39,17 +39,18 @@ class VisitLogsController < ApplicationController
 
   def edit
     @visit_log = current_user.visit_logs.find(params[:id])
-    # 既存のデータがない場合や、追加で入力したい時のために空の枠を用意する
-    @visit_log.blood_test_results.build if @visit_log.blood_test_results.empty?
-    @visit_log.prescribed_medicines.build if @visit_log.prescribed_medicines.empty?
+    # 💡 blood_test_results を blood_test_items に修正
+    # 常に合計5枠（検査）と3枠（薬）になるように調整すると使いやすいです
+    (5 - @visit_log.blood_test_items.size).times { @visit_log.blood_test_items.build }
+    (3 - @visit_log.prescribed_medicines.size).times { @visit_log.prescribed_medicines.build }
   end
 
   def update
     @visit_log = current_user.visit_logs.find(params[:id])
     if @visit_log.update(visit_log_params)
-      redirect_to @visit_log, notice: "受診記録を更新しました。"
+      redirect_to visit_log_path(@visit_log), notice: "受診記録を更新しました。"
     else
-     render :edit, status: :unprocessable_content
+      render :edit, status: :unprocessable_entity
     end
   end
 
