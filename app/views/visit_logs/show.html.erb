@@ -37,16 +37,16 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-              <% @visit_log.blood_test_results.each do |result| %>
+              <% @visit_log.blood_test_items.each do |item| %>
                 <tr class="hover:bg-white transition">
-                  <td class="px-6 py-4 text-sm font-bold text-gray-700"><%= result.item_name %></td>
-                  <td class="px-6 py-4 text-sm text-blue-600 font-mono font-bold"><%= result.value %></td>
-                  <td class="px-6 py-4 text-sm text-gray-500"><%= result.unit %></td>
+                  <td class="px-6 py-4 text-sm font-bold text-gray-700"><%= item.name %></td>
+                  <td class="px-6 py-4 text-sm text-blue-600 font-mono font-bold"><%= item.value %></td>
+                  <td class="px-6 py-4 text-sm text-gray-500"><%= item.unit %></td>
                 </tr>
               <% end %>
             </tbody>
           </table>
-          <% if @visit_log.blood_test_results.empty? %>
+          <% if @visit_log.blood_test_items.empty? %>
             <p class="p-6 text-sm text-gray-400 italic text-center">検査結果の登録はありません</p>
           <% end %>
         </div>

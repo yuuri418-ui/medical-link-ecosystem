@@ -1,0 +1,28 @@
+ja:
+  devise:
+    shared:
+      links:
+        sign_up: "アカウント登録"
+        forgot_your_password: "パスワードを忘れた場合"
+        sign_in: "ログイン"
+        confirmation_instructions: "確認メールの再送"
+        unlock_instructions: "アカウント凍結解除メールの再送"
+        omniauth_login: "%{kind}でログイン"
+    sessions:
+      signed_in: "ログインしました。"
+      signed_out: "ログアウトしました。"
+      already_signed_in: "既にログインしています。"
+    registrations:
+      signed_up: "アカウント登録が完了しました。"
+      updated: "プロフィールを更新しました。"
+      destroyed: "アカウントを削除しました。またのご利用をお待ちしております。"
+    failure:
+      unauthenticated: "ログインもしくはアカウント登録を行ってください。"
+      unconfirmed: "アカウントを確認メールより有効にしてください。"
+      already_authenticated: "既にログインしています。"
+      invalid: "メールアドレスもしくはパスワードが違います。"
+      not_found_in_database: "メールアドレスもしくはパスワードが違います。"
+      last_attempt: "あなたのアカウントがロックされる前にもう一度試行できます。"
+      locked: "あなたのアカウントはロックされています。"
+      timeout: "セッションがタイムアウトしました。もう一度ログインしてください。"
+      inactive: "アカウントが有効化されていません。"

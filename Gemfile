@@ -38,6 +38,8 @@ gem "bootsnap", require: false
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ]
+  gem 'rspec-rails'
+  gem 'factory_bot_rails'
 end
 
 group :development do
@@ -52,3 +54,12 @@ gem "tailwindcss-rails", "~> 4.4"
 gem "sprockets-rails", "~> 3.5"
 
 gem "importmap-rails", "~> 2.2"
+
+gem "chartkick"
+
+gem "simple_calendar", "~> 2.4"
+
+gem 'wicked_pdf'
+gem 'wkhtmltopdf-binary'
+
+

@@ -10,9 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_02_051338) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_04_021338) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "blood_test_items", force: :cascade do |t|
+    t.bigint "visit_log_id", null: false
+    t.string "name"
+    t.float "value"
+    t.string "unit"
+    t.string "reference_range"
+    t.string "category"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["visit_log_id"], name: "index_blood_test_items_on_visit_log_id"
+  end
 
   create_table "blood_test_results", force: :cascade do |t|
     t.bigint "visit_log_id", null: false
@@ -34,6 +46,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_02_051338) do
     t.text "memo"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.json "pain_parts"
     t.index ["user_id", "date"], name: "index_daily_logs_on_user_id_and_date", unique: true
     t.index ["user_id"], name: "index_daily_logs_on_user_id"
   end
@@ -45,6 +58,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_02_051338) do
     t.boolean "is_taken"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "english_name"
     t.index ["daily_log_id"], name: "index_medication_logs_on_daily_log_id"
   end
 
@@ -74,10 +88,11 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_02_051338) do
     t.string "last_name_kana", null: false
     t.string "first_name_kana", null: false
     t.integer "gender", default: 0, null: false
-    t.date "birthday"
+    t.date "birthday", null: false
     t.string "phone_number", null: false
     t.string "diagnosis_name"
     t.date "started_at"
+    t.string "patient_id"
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
@@ -99,6 +114,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_02_051338) do
     t.index ["user_id"], name: "index_visit_logs_on_user_id"
   end
 
+  add_foreign_key "blood_test_items", "visit_logs"
   add_foreign_key "blood_test_results", "visit_logs"
   add_foreign_key "daily_logs", "users"
   add_foreign_key "medication_logs", "daily_logs"
