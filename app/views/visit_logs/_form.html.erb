@@ -40,12 +40,26 @@
   <%# 処方薬セクション %>
   <div class="bg-green-50 p-6 rounded-2xl border border-green-100">
     <h2 class="text-lg font-bold text-green-900 mb-4">💊 今回処方された薬</h2>
-    <%= f.fields_for :prescribed_medicines do |p| %>
-      <div class="grid grid-cols-2 gap-2 mb-2">
-        <%= p.text_field :name, placeholder: "薬名", class: "rounded-md border-gray-200" %>
-        <%= p.text_field :dosage, placeholder: "用量", class: "rounded-md border-gray-200" %>
-      </div>
-    <% end %>
+    <div class="space-y-2">
+      <%= f.fields_for :prescribed_medicines do |p| %>
+        <div class="grid grid-cols-12 gap-2 mb-2">
+          <div class="col-span-6">
+            <%= p.text_field :name, placeholder: "薬名", class: "w-full rounded-md border-gray-200 text-sm" %>
+          </div>
+          <div class="col-span-4">
+            <%= p.text_field :dosage, placeholder: "用量", class: "w-full rounded-md border-gray-200 text-sm" %>
+          </div>
+          <div class="col-span-2 flex items-center justify-center">
+            <% if p.object.persisted? %>
+              <div class="flex flex-col items-center">
+                <%= p.check_box :_destroy, class: "rounded text-red-500" %>
+                <span class="text-[8px] text-red-400">削除</span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
   </div>
 
   <%# メモセクション %>
