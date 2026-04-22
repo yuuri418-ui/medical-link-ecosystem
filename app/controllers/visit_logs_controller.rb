@@ -38,9 +38,10 @@ class VisitLogsController < ApplicationController
   end
 
   def edit
-    @visit_log = VisitLog.find(params[:id])
-    # 既存のデータ＋新しい空の入力欄を2つ追加
-    2.times { @visit_log.blood_test_items.build }
+    @visit_log = current_user.visit_logs.find(params[:id])
+    # 既存のデータがない場合や、追加で入力したい時のために空の枠を用意する
+    @visit_log.blood_test_results.build if @visit_log.blood_test_results.empty?
+    @visit_log.prescribed_medicines.build if @visit_log.prescribed_medicines.empty?
   end
 
   def update
