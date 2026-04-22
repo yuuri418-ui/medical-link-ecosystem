@@ -61,7 +61,7 @@ class DailyLogsController < ApplicationController
   def create
     @daily_log = current_user.daily_logs.build(daily_log_params)
     if @daily_log.save
-      redirect_to daily_logs_path, notice: "体調を記録しました！"
+      redirect_to daily_logs_path(@daily_log), notice: "体調を記録しました！"
     else
       render :new, status: :unprocessable_content
     end
